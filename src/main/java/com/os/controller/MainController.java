@@ -10,21 +10,23 @@ import com.os.ram.FATManager;
 import com.os.ram.OFTLEManager;
 import com.os.ram.RAMManager;
 import com.os.utils.MsgQueue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.ResourceBundle;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 /**
  * Created by Jeremie on 2014/10/13.
@@ -36,10 +38,33 @@ public class MainController implements Initializable {
     @FXML
     private Button loadFatTableButton;
     @FXML
-    private TableView fatTable;
+    private TableView fatTable,memoryTable;
+    @FXML
+    private TreeView pathTree;
+    @FXML
+    private TextArea openedFile,currentFileContent;
     @FXML
     private TableColumn diskNumber1, diskNumber2;
+    @FXML
+    private Pane main;
+    @FXML
+    private AnchorPane input,msg;
 
+    private static MainController mainController;
+
+    public static MainController getInstance(){
+        return mainController;
+    }
+
+    public void changeMain(boolean flag){
+        main.setDisable(flag);
+    }
+    public void changeInput(boolean flag){
+        input.setVisible(flag);
+    }
+    public void changeMsg(boolean flag){
+        msg.setVisible(flag);
+    }
     private ObservableList<FatItem> FatItemObservableList;
     private ArrayList<FatItem> FatItemArrayList = new ArrayList<>();
 
@@ -57,9 +82,12 @@ public class MainController implements Initializable {
 
     private MsgQueue<String> queue = new MsgQueue<>();
 
+    /**
+     * 初始化磁盘信息
+     */
     @FXML
     private void initDiskInfo() {
-        /* 初始化磁盘信息 */
+        MessageController messageController = MessageController.getInstance();
         try {
             for (int i = 0; i < 128; i++) {
                 File file = new File(i + ".txt");
@@ -90,11 +118,11 @@ public class MainController implements Initializable {
             }
             fatManager.saveFATToDisk(testFat);
 
-            CatalogueItem catalogueItem1 = new CatalogueItem("C:", " ", t_attribute, DiskManager.C_DISK_NUMBER, 0);
-            CatalogueItem catalogueItem2 = new CatalogueItem("D:", " ", t_attribute, DiskManager.D_DISK_NUMBER, 0);
-            CatalogueItem catalogueItem3 = new CatalogueItem("E:", " ", t_attribute, DiskManager.E_DISK_NUMBER, 0);
-            CatalogueItem catalogueItem4 = new CatalogueItem("F:", " ", t_attribute, DiskManager.F_DISK_NUMBER, 0);
-            CatalogueItem catalogueItem5 = new CatalogueItem("G:", " ", t_attribute, DiskManager.G_DISK_NUMBER, 0);
+            CatalogueItem catalogueItem1 = new CatalogueItem("C:$", " ", t_attribute, DiskManager.C_DISK_NUMBER, 0);
+            CatalogueItem catalogueItem2 = new CatalogueItem("D:$", " ", t_attribute, DiskManager.D_DISK_NUMBER, 0);
+            CatalogueItem catalogueItem3 = new CatalogueItem("E:$", " ", t_attribute, DiskManager.E_DISK_NUMBER, 0);
+            CatalogueItem catalogueItem4 = new CatalogueItem("F:$", " ", t_attribute, DiskManager.F_DISK_NUMBER, 0);
+            CatalogueItem catalogueItem5 = new CatalogueItem("G:$", " ", t_attribute, DiskManager.G_DISK_NUMBER, 0);
 
             ArrayList<CatalogueItem> catalogueItemList = new ArrayList<>();
             catalogueItemList.add(catalogueItem1);
@@ -105,16 +133,27 @@ public class MainController implements Initializable {
             this.diskManager.saveCatalogueItemFormatInformationToDisk(DiskManager.ORIGINAL_DISK_NUMBER, catalogueItemList, ramManager.getFat());
 
             ramManager.initRam();
+            messageController.showTips("初始化磁盘信息成功");
         } catch (IOException ex) {
             ex.printStackTrace();
-            System.out.println("初始化磁盘信息失败");
+            messageController.showTips("初始化磁盘信息失败");
         }
+
     }
 
+    /**
+     * 加载Fat表
+     */
     @FXML
     private void loadFatTable() {
-        /* 加载Fat表 */
         ramManager.initRam();
+        reLoadFatTable();
+    }
+
+    /**
+     * 重Fat表
+     */
+    private void reLoadFatTable() {
         FatItemArrayList.clear();
         int[] fat = fatManager.returnTheFAT();
         for (int i = 0; i < fat.length; i++) {
@@ -124,27 +163,47 @@ public class MainController implements Initializable {
         FatItemObservableList.addAll(FatItemArrayList);
     }
 
+
+    /**
+     * 创建文件目录
+     */
     @FXML
     private void createDirectory() {
-
-        String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
-
-        absouletRoute = this.filter.initeFilte(absouletRoute);
-        String tips = this.filter.filteDirectoryName(absouletRoute);
-        if (!tips.isEmpty()) {
-            //用一个框输出提示
-
-        } else {
-            tips = this.directoryOpreator.makeDirectory(absouletRoute, this.ramManager.getFat());
-            if (!tips.isEmpty()) {
-                //输出失败的原因，原因被存储在tips中
+        input.setVisible(true);
+        main.setDisable(true);
+        InputController inputController = InputController.getInputController();
+        inputController.setPathLabel("请输入新建的文件目录");
+        inputController.setApplyEvent(event -> {
+            String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
+            MessageController messageController = MessageController.getInstance();
+            if(!(absouletRoute==null||absouletRoute.isEmpty()||"".equals(absouletRoute))) {
+                absouletRoute = filter.initeFilte(absouletRoute);
+                String tips = filter.filteDirectoryName(absouletRoute);
+                if (!tips.isEmpty()) {
+                    //输出提示
+                    messageController.showTips(tips);
+                } else {
+                    tips = directoryOpreator.makeDirectory(absouletRoute, ramManager.getFat());
+                    if (!tips.isEmpty()) {
+                        //输出失败的原因，原因被存储在tips中
+                        messageController.showTips(tips);
+                    }else {
+                        messageController.showTips("创建目录成功");
+                        //重新加载Fat表
+                        reLoadFatTable();
+                    }
+                }
+            }else{
+                //目录为空
+                messageController.showTips("目录路径为空");
             }
-        }
+
+        });
     }
 
     @FXML
     private void showDirectoryInfo() {
-
+        //todo
         String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
         absouletRoute = this.filter.initeFilte(absouletRoute);
 
@@ -171,26 +230,42 @@ public class MainController implements Initializable {
 
     @FXML
     private void deleteDirectory() {
-
-        String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
-        absouletRoute = this.filter.initeFilte(absouletRoute);
-
-        String tips = this.filter.filteDirectoryName(absouletRoute);
-        if (!tips.isEmpty()) {
-            //用一个框输出提示
-        } else {
-            tips = this.directoryOpreator.removeDirectory(absouletRoute, this.ramManager.getFat(), this.ramManager.getOftleList());
-            if (!tips.isEmpty()) {
-                //输出失败的原因，原因被存储在tips中
-            } else {
-                //提示删除目录成功
+        input.setVisible(true);
+        main.setDisable(true);
+        InputController inputController = InputController.getInputController();
+        inputController.setPathLabel("请输入删除的文件目录");
+        inputController.setApplyEvent(event -> {
+            String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
+            MessageController messageController = MessageController.getInstance();
+            if(!(absouletRoute==null||absouletRoute.isEmpty()||"".equals(absouletRoute))) {
+                absouletRoute = filter.initeFilte(absouletRoute);
+                String tips = filter.filteDirectoryName(absouletRoute);
+                if (!tips.isEmpty()) {
+                    //用一个框输出提示
+                    messageController.showTips(tips);
+                } else {
+                    tips = directoryOpreator.removeDirectory(absouletRoute, ramManager.getFat(), ramManager.getOftleList());
+                    if (!tips.isEmpty()) {
+                        //输出失败的原因，原因被存储在tips中
+                        messageController.showTips(tips);
+                    } else {
+                        //提示删除目录成功
+                        messageController.showTips("删除目录成功");
+                        //重新加载Fat表
+                        reLoadFatTable();
+                    }
+                }
+            }else{
+                //目录为空
+                messageController.showTips("目录路径为空");
             }
-        }
+        });
+
     }
 
     @FXML
     private void appendInfoToFile() {
-
+        //todo
         String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
         absouletRoute = this.filter.initeFilte(absouletRoute);
 
@@ -234,7 +309,7 @@ public class MainController implements Initializable {
 
     @FXML
     private void readFile() {
-
+        //todo
         String absouletRoute = "";
         absouletRoute = this.filter.initeFilte(absouletRoute);
 
@@ -256,8 +331,19 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    private void showFileInfo() {
+    private void createFile() {
+        //todo
 
+    }
+
+    @FXML
+    private void openFile(){
+        //todo
+    }
+
+    @FXML
+    private void showFileInfo() {
+        //todo
         String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
         //可能要用正则表达式判断absouletRoute是否合法//
         absouletRoute = this.filter.initeFilte(absouletRoute);
@@ -323,6 +409,7 @@ public class MainController implements Initializable {
 
     @FXML
     private void deleteFile() {
+        //todo
         String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
         absouletRoute = this.filter.initeFilte(absouletRoute);
 
@@ -342,6 +429,7 @@ public class MainController implements Initializable {
 
     @FXML
     private void closeFile() {
+        //todo
         String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
         absouletRoute = this.filter.initeFilte(absouletRoute);
 
@@ -361,14 +449,27 @@ public class MainController implements Initializable {
 
     @FXML
     private void changeFileAttribute() {
+        //todo
         //实现我亲自说
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        mainController = this;
+        input.setVisible(false);
+        msg.setVisible(false);
         FatItemObservableList = FXCollections.observableArrayList(FatItemArrayList);
         diskNumber1.setCellValueFactory(new PropertyValueFactory<>("diskNumber1"));
         diskNumber2.setCellValueFactory(new PropertyValueFactory<>("diskNumber2"));
         fatTable.setItems(FatItemObservableList);
+        MessageController messageController = MessageController.getInstance();
+        messageController.setApplyEvent(event1 -> {
+            //消息窗口消失
+            //输入窗口消失
+            //主窗口可用
+            msg.setVisible(false);
+            input.setVisible(false);
+            main.setDisable(false);
+        });
     }
 }

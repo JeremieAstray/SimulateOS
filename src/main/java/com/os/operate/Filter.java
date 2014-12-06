@@ -31,7 +31,7 @@ public class Filter {
                 //return true;
                 return "";
             } else {
-                switch (absoluteRoute) {
+                switch (absoluteRoute.toUpperCase()) {
                     case "C:":
                         //return true;
                         return "";
@@ -69,7 +69,7 @@ public class Filter {
 //                return false;
                 return "你输入的第" + (i + 1) + "层" + "目录名的长度超过3！";
             }
-            if (subDirectory.matches("[^$^\\.]+")) {
+            if (!subDirectory.matches("[^$^\\.]+")) {
 //                System.out.println("第" + (i + 1) + "层" + "目录名中含有非法字符\"$\"或者\".\"");
                 return "你输入的第" + (i + 1) + "层" + "目录名中含有非法字符\"$\"或者\".\"";
             }

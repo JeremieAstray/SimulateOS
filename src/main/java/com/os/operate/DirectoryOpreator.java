@@ -19,6 +19,7 @@ public class DirectoryOpreator {
         int temp = diskNumber;
         ArrayList<CatalogueItem> catalogueItemList = new ArrayList<>();
         ArrayList<CatalogueItem> tempCatalogueItemList;
+        System.out.println("temp: "+temp);
 
         do {
             tempCatalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(temp);
@@ -46,7 +47,7 @@ public class DirectoryOpreator {
 //        }
 
         int diskNumber = -1;  //根目录都不匹配就返回-1喽
-        switch (s[0]) {
+        switch (s[0].toUpperCase()) {
             case "C:":
                 //catalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(DiskManager.C_DISK_NUMBER);
                 catalogueItemList = this.getCompleteCatalogueItemFormatInformationFromDisk(DiskManager.C_DISK_NUMBER, fat);
@@ -169,8 +170,10 @@ public class DirectoryOpreator {
 //            fatherDirectory = "/";
 //        } else {
         fatherDirectory = absouletRoute.substring(0, absouletRoute.lastIndexOf('/'));
+        System.out.println(fatherDirectory);
 //        }
         subDirectory = absouletRoute.substring(absouletRoute.lastIndexOf("/") + 1);
+        System.out.println(subDirectory);
 
         int diskNumber;  //记录父目录的存储磁盘号
         if ((diskNumber = this.searchDiskNumberOfStoringCatalogueInformation(fatherDirectory, fat)) == -1) {
@@ -193,6 +196,7 @@ public class DirectoryOpreator {
                             tempS += catalogueItemList1.getName().charAt(k);
                         }
                     }
+                    System.out.println(subDirectory+" "+tempS);
                     if (subDirectory.equals(tempS)) {
 //                        System.out.println("目录名重复，无法在此新建目录！");
 //                        return false;

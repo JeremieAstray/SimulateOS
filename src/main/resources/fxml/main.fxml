@@ -2,21 +2,93 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
-<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.os.controller.MainController">
+<?import javafx.scene.text.*?>
+<?import javafx.scene.layout.Pane?>
+<AnchorPane prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.os.controller.MainController">
     <children>
-        <Button fx:id="initDiskInfoButton" layoutX="14.0" layoutY="41.0" onAction="#initDiskInfo" prefHeight="58.0" prefWidth="123.0" text="初始化磁盘信息" />
-        <Button fx:id="loadFatTableButton" layoutX="155.0" layoutY="41.0" onAction="#loadFatTable" prefHeight="58.0" prefWidth="123.0" text="加载Fat表" />
-      <TableView fx:id="fatTable" layoutX="622.0" layoutY="35.0" prefHeight="536.0" prefWidth="152.0">
-        <columns>
-          <TableColumn fx:id="diskNumber1" prefWidth="72.0" text="盘块号" />
-          <TableColumn fx:id="diskNumber2" prefWidth="78.0" text="指向的盘块号" />
-        </columns>
-      </TableView>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="622.0" layoutY="13.0" prefHeight="21.0" prefWidth="152.0" text="Fat表" textAlignment="CENTER">
-         <font>
-            <Font size="16.0" />
-         </font>
-      </Label>
+        <Pane fx:id = "main">
+            <Button fx:id="initDiskInfoButton" layoutX="254.0" layoutY="45.0" onAction="#initDiskInfo" prefHeight="70.0"
+                    prefWidth="150.0" text="初始化磁盘信息"/>
+            <Button fx:id="loadFatTableButton" layoutX="414.0" layoutY="45.0" onAction="#loadFatTable" prefHeight="70.0"
+                    prefWidth="150.0" text="加载Fat表"/>
+            <TableView fx:id="fatTable" layoutX="1085.0" layoutY="45.0" prefHeight="670.0" prefWidth="185.0">
+                <columns>
+                    <TableColumn fx:id="diskNumber1" prefWidth="92.0" text="盘块号"/>
+                    <TableColumn fx:id="diskNumber2" prefWidth="92.0" text="指向的盘块号"/>
+                </columns>
+            </TableView>
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="1088.0" layoutY="6.0" prefHeight="30.0"
+                   prefWidth="178.0" text="Fat表" textAlignment="CENTER">
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Label>
+            <TreeView fx:id="pathTree" layoutY="121.0" prefHeight="599.0" prefWidth="245.0"/>
+            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="40.0" prefWidth="245.0" text="目录操作："
+                   textAlignment="CENTER">
+                <font>
+                    <Font name="Microsoft YaHei" size="15.0"/>
+                </font>
+            </Label>
+            <Button fx:id="createPath" onAction="#createDirectory" layoutX="1.0" layoutY="45.0" mnemonicParsing="false"
+                    prefHeight="70.0"
+                    prefWidth="70.0" text="创建目录"/>
+            <Button fx:id="delPath" onAction="#deleteDirectory" layoutX="88.0" layoutY="45.0" mnemonicParsing="false"
+                    prefHeight="70.0" prefWidth="70.0"
+                    text="删除目录"/>
+            <Button fx:id="showPath" onAction="#showDirectoryInfo" layoutX="175.0" layoutY="45.0"
+                    mnemonicParsing="false" prefHeight="70.0"
+                    prefWidth="70.0" text="显示目录"/>
+            <TableView fx:id="memoryTable" layoutX="254.0" layoutY="121.0" prefHeight="593.0" prefWidth="185.0">
+                <columns>
+                    <TableColumn prefWidth="184.0" text="内存"/>
+                </columns>
+            </TableView>
+            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="750.0" prefHeight="40.0" prefWidth="323.0"
+                   text="文件操作：" textAlignment="CENTER">
+                <font>
+                    <Font name="Microsoft YaHei" size="15.0"/>
+                </font>
+            </Label>
+            <Button fx:id="openFile" onAction="#openFile" layoutX="749.0" layoutY="45.0" mnemonicParsing="false"
+                    prefHeight="35.0"
+                    prefWidth="78.0" text="打开文件"/>
+            <Button fx:id="writeFile" onAction="#appendInfoToFile" layoutX="749.0" layoutY="79.0"
+                    mnemonicParsing="false" prefHeight="35.0"
+                    prefWidth="78.0" text="写文件"/>
+            <Button fx:id="closeFile" onAction="#closeFile" layoutX="827.0" layoutY="45.0" mnemonicParsing="false"
+                    prefHeight="35.0"
+                    prefWidth="78.0" text="关闭文件"/>
+            <Button fx:id="createFile" onAction="#createFile" layoutX="827.0" layoutY="79.0" mnemonicParsing="false"
+                    prefHeight="35.0"
+                    prefWidth="78.0" text="创建文件"/>
+            <Button fx:id="ReadFile" onAction="#readFile" layoutX="905.0" layoutY="45.0" mnemonicParsing="false"
+                    prefHeight="35.0"
+                    prefWidth="78.0" text="读文件"/>
+            <Button fx:id="delFile" onAction="#deleteFile" layoutX="905.0" layoutY="79.0" mnemonicParsing="false"
+                    prefHeight="35.0"
+                    prefWidth="78.0" text="删除文件"/>
+            <Button fx:id="updateFileProperties" onAction="#changeFileAttribute" layoutX="983.0" layoutY="45.0"
+                    mnemonicParsing="false" prefHeight="35.0"
+                    prefWidth="90.0" text="修改文件属性"/>
+            <Button fx:id="showFileContenr" onAction="#showFileInfo" layoutX="983.0" layoutY="80.0"
+                    mnemonicParsing="false" prefHeight="35.0"
+                    prefWidth="90.0" text="显示文件内容"/>
+            <TextArea fx:id="openedFile" layoutX="467.0" layoutY="150.0" prefHeight="143.0" prefWidth="606.0"/>
+            <Label layoutX="467.0" layoutY="120.0" prefHeight="30.0" prefWidth="142.0" text="已打开文件表">
+                <font>
+                    <Font size="18.0"/>
+                </font>
+            </Label>
+            <TextArea fx:id="currentFileContent" layoutX="465.0" layoutY="334.0" prefHeight="381.0" prefWidth="606.0"/>
+            <Label layoutX="465.0" layoutY="302.0" prefHeight="30.0" prefWidth="142.0" text="文件内容">
+                <font>
+                    <Font size="18.0"/>
+                </font>
+            </Label>
+        </Pane>
+        <fx:include fx:id="input" layoutY="260" layoutX="490" source="input.fxml"/>
+        <fx:include fx:id="msg" layoutY="260" layoutX="490" source="message.fxml"/>
     </children>
 </AnchorPane>
