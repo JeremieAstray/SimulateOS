@@ -42,7 +42,7 @@
                     prefWidth="70.0" text="显示目录"/>
             <TableView fx:id="memoryTable" layoutX="254.0" layoutY="121.0" prefHeight="593.0" prefWidth="185.0">
                 <columns>
-                    <TableColumn prefWidth="184.0" text="内存"/>
+                    <TableColumn  fx:id="memoryColumn" prefWidth="184.0" text="内存" />
                 </columns>
             </TableView>
             <Label alignment="CENTER" contentDisplay="CENTER" layoutX="750.0" prefHeight="40.0" prefWidth="323.0"

@@ -85,4 +85,17 @@ public class OFTLE {
     public void setAttribute(int[] attribute) {
         this.attribute = attribute;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        OFTLE oftle = (OFTLE) o;
+
+        if (absoultRoute != null ? !absoultRoute.equals(oftle.absoultRoute) : oftle.absoultRoute != null) return false;
+
+        return true;
+    }
 }
+

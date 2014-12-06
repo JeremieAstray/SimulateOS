@@ -30,6 +30,26 @@ public class Pointer {
         return b_num;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Pointer pointer = (Pointer) o;
+
+        if (b_num != pointer.b_num) return false;
+        if (d_num != pointer.d_num) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = d_num;
+        result = 31 * result + b_num;
+        return result;
+    }
+
     public void setB_num(int b_num) {
         this.b_num = b_num;
     }

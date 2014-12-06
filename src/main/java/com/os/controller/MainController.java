@@ -2,11 +2,13 @@ package com.os.controller;
 
 import com.os.disk.DiskManager;
 import com.os.entity.FatItem;
+import com.os.entity.MemoryItem;
 import com.os.operate.CatalogueItem;
 import com.os.operate.DirectoryOpreator;
 import com.os.operate.FileOperator;
 import com.os.operate.Filter;
 import com.os.ram.FATManager;
+import com.os.ram.OFTLE;
 import com.os.ram.OFTLEManager;
 import com.os.ram.RAMManager;
 import com.os.utils.MsgQueue;
@@ -27,6 +29,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 /**
  * Created by Jeremie on 2014/10/13.
@@ -44,7 +47,7 @@ public class MainController implements Initializable {
     @FXML
     private TextArea openedFile, currentFileContent;
     @FXML
-    private TableColumn diskNumber1, diskNumber2;
+    private TableColumn diskNumber1, diskNumber2,memoryColumn;
     @FXML
     private Pane main;
     @FXML
@@ -81,6 +84,10 @@ public class MainController implements Initializable {
     private String something;
     private int[] attribute = {0, 0, 1, 0, 0, 0, 0, 0};
     private int[] t_attribute = {0, 0, 0, 1, 0, 0, 0, 0};
+
+    private ObservableList<MemoryItem> memoryItemObservableList;
+    private ArrayList<MemoryItem> memoryItems = new ArrayList<>();
+
 
     private MsgQueue<String> queue = new MsgQueue<>();
 
@@ -266,108 +273,216 @@ public class MainController implements Initializable {
 
     @FXML
     private void appendInfoToFile() {
-        //todo
-        String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
-        absouletRoute = this.filter.initeFilte(absouletRoute);
+        //todo 待完成
+        input.setVisible(true);
+        main.setDisable(true);
+        InputController inputController = InputController.getInputController();
+        inputController.setPathLabel("请输入要写的文件");
+        inputController.setApplyEvent(event -> {
+            String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
+            MessageController messageController = MessageController.getInstance();
+            if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
+                absouletRoute = this.filter.initeFilte(absouletRoute);
 
-        //将用户从输入框里面输入的东西弄进主存//
-        String tips = this.filter.filteFileName(absouletRoute);
-        if (!tips.isEmpty()) {
-            //用一个框输出提示
-        } else {
-            int index = 0, b1_index = 0;
-            boolean isSucceed = true;
-            while (index < ramManager.getRamSpaceForWrite().size()) {
-                if (b1_index == ramManager.getBuffer1().length) {
-                    tips = fileOperator.writeFile(absouletRoute, ramManager.getBuffer1(), b1_index, ramManager.getFat(), ramManager.getOftleList());
-                    if (!tips.isEmpty()) {
-                        b1_index = 0;
-                        isSucceed = false;
-                        break;
-                    }
-                    b1_index = 0;
-                } else {
-                    ramManager.getBuffer1()[b1_index] = ramManager.getRamSpaceForWrite().get(index);
-                    b1_index++;
-                    index++;
-                }
-            }
-            if (b1_index > 0 && isSucceed) {  //缓冲区内还有内容，还要再写一遍
-                tips = fileOperator.writeFile(absouletRoute, ramManager.getBuffer1(), b1_index, ramManager.getFat(), ramManager.getOftleList());
+                //将用户从输入框里面输入的东西弄进主存//
+                String tips = this.filter.filteFileName(absouletRoute);
                 if (!tips.isEmpty()) {
-                    b1_index = 0;
-                    isSucceed = false;
+                    //用一个框输出提示
+                    messageController.showTips(tips);
+                } else {
+                    String test = UUID.randomUUID().toString();
+                    for(int i=0;i<test.length();i++){
+                        ramManager.getRamSpaceForWrite().add(test.charAt(i));
+                    }
+
+                    int index = 0, b1_index = 0;
+                    boolean isSucceed = true;
+                    while (index < ramManager.getRamSpaceForWrite().size()) {
+                        if (b1_index == ramManager.getBuffer1().length) {
+                            tips = fileOperator.writeFile(absouletRoute, ramManager.getBuffer1(), b1_index, ramManager.getFat(), ramManager.getOftleList());
+                            if (!tips.isEmpty()) {
+                                b1_index = 0;
+                                isSucceed = false;
+                                break;
+                            }
+                            b1_index = 0;
+                        } else {
+                            ramManager.getBuffer1()[b1_index] = ramManager.getRamSpaceForWrite().get(index);
+                            b1_index++;
+                            index++;
+                        }
+                    }
+                    if (b1_index > 0 && isSucceed) {  //缓冲区内还有内容，还要再写一遍
+                        tips = fileOperator.writeFile(absouletRoute, ramManager.getBuffer1(), b1_index, ramManager.getFat(), ramManager.getOftleList());
+                        if (!tips.isEmpty()) {
+                            b1_index = 0;
+                            isSucceed = false;
+                        }
+                    }
+                    if (isSucceed) {
+                        //提示用户输入添加的信息成功
+                        messageController.showTips("输入添加的信息成功");
+                    } else {
+                        //输出tips里面的提示
+                        messageController.showTips(tips);
+                    }
+                    //ramManager.setRamSpaceForWrite(new ArrayList<>());
                 }
+
             }
-            if (isSucceed) {
-                //提示用户输入添加的信息成功
-            } else {
-                //输出tips里面的提示
+            loadMemoryTable();
+            StringBuffer text = new StringBuffer();
+            for (OFTLE oftle : ramManager.getOftleList())
+                text.append(oftle.getAbsoultRoute() + "\n");
+            openedFile.setText(text.toString());
+            reLoadFatTable();
+        });
+    }
+
+    /**
+     * 读取内存数据
+     */
+    private void loadMemoryTable() {
+        memoryItems.clear();
+        int i=0;
+        memoryItems.add(new MemoryItem("=======读内存======="));
+        StringBuffer string = new StringBuffer();
+        for(char c :ramManager.getRamSpaceForRead()){
+            i++;
+            string.append(c);
+            if(i==7){
+                i = 0;
+                memoryItems.add(new MemoryItem(string.toString()));
+                string.delete(0,string.length()-1);
             }
-            ramManager.setRamSpaceForWrite(new ArrayList<>());
         }
+        if(i!=0){
+            i = 0;
+            memoryItems.add(new MemoryItem(string.toString()));
+            string.delete(0,string.length()-1);
+        }
+
+        memoryItems.add(new MemoryItem("=======写内存======="));
+        for(char c :ramManager.getRamSpaceForWrite()){
+            i++;
+            string.append(c);
+            if(i==7){
+                i = 0;
+                memoryItems.add(new MemoryItem(string.toString()));
+                string.delete(0,string.length()-1);
+            }
+        }
+        if(i!=0){
+            i = 0;
+            memoryItems.add(new MemoryItem(string.toString()));
+            string.delete(0,string.length()-1);
+        }
+        memoryItemObservableList.clear();
+        memoryItemObservableList.addAll(memoryItems);
     }
 
     @FXML
     private void readFile() {
-        //todo
-        String absouletRoute = "";
-        absouletRoute = this.filter.initeFilte(absouletRoute);
-
-        int readLength = 0;//真正的absouleRoute和length从用户输入框获取//
-
-        String tips = this.filter.filteFileName(absouletRoute);
-        if (!tips.isEmpty()) {
-            //用一个框输出提示
-        } else {
-            ramManager.setRamSpaceForRead(new ArrayList<>());
-            tips = fileOperator.readFile(absouletRoute, readLength, ramManager.getRamSpaceForRead(), ramManager.getFat(), ramManager.getOftleList());
-
-            if (!tips.isEmpty()) {
-                //输出tips里面的提示
-            } else {
-                //提示成功
+        //todo 待完成
+        input.setVisible(true);
+        main.setDisable(true);
+        InputController inputController = InputController.getInputController();
+        inputController.setPathLabel("请输入文件路径");
+        inputController.setApplyEvent(event -> {
+            String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
+            MessageController messageController = MessageController.getInstance();
+            if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
+                absouletRoute = this.filter.initeFilte(absouletRoute);
+                int readLength = 20;//真正的absouleRoute和length从用户输入框获取//
+                String tips = this.filter.filteFileName(absouletRoute);
+                if (!tips.isEmpty()) {
+                    //用一个框输出提示
+                    messageController.showTips(tips);
+                } else {
+                    ramManager.setRamSpaceForRead(new ArrayList<>());
+                    tips = fileOperator.readFile(absouletRoute, readLength, ramManager.getRamSpaceForRead(), ramManager.getFat(), ramManager.getOftleList());
+                    if (!tips.isEmpty()) {
+                        //输出tips里面的提示
+                        messageController.showTips(tips);
+                    } else {
+                        //提示成功
+                        messageController.showTips("读取文件成功");
+                        loadMemoryTable();
+                    }
+                }
             }
-        }
+            StringBuffer text = new StringBuffer();
+            for (OFTLE oftle : ramManager.getOftleList())
+                text.append(oftle.getAbsoultRoute() + "\n");
+            openedFile.setText(text.toString());
+        });
     }
 
     @FXML
     private void createFile() {
-        //todo
-        String absouletRoute = "";
-        
-        absouletRoute = this.filter.initeFilte(absouletRoute);
-        String tips = this.filter.filteFileName(absouletRoute);
-        if (!tips.isEmpty()) {
-            //输出tips里面的提示
-        } else {
-            tips = fileOperator.creatFile(absouletRoute, attribute, ramManager.getFat(), ramManager.getOftleList());
-            if (!tips.isEmpty()) {
-                //输出tips里面的提示
-            } else {
-                //提示成功
+        input.setVisible(true);
+        main.setDisable(true);
+        InputController inputController = InputController.getInputController();
+        inputController.setPathLabel("请输入新建的文件");
+        inputController.setApplyEvent(event -> {
+            String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
+            MessageController messageController = MessageController.getInstance();
+            if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
+                absouletRoute = this.filter.initeFilte(absouletRoute);
+                String tips = this.filter.filteFileName(absouletRoute);
+                if (!tips.isEmpty()) {
+                    //输出tips里面的提示
+                    messageController.showTips(tips);
+                } else {
+                    tips = fileOperator.creatFile(absouletRoute, attribute, ramManager.getFat(), ramManager.getOftleList());
+                    if (!tips.isEmpty()) {
+                        //输出tips里面的提示
+                        messageController.showTips(tips);
+                    } else {
+                        //提示成功
+                        messageController.showTips("成功新建文件");
+                        reLoadFatTable();
+                    }
+                }
             }
-        }
+            StringBuffer text = new StringBuffer();
+            for(OFTLE oftle:ramManager.getOftleList())
+                text.append(oftle.getAbsoultRoute() + "\n");
+            openedFile.setText(text.toString());
+        });
     }
 
     @FXML
     private void openFile() {
-        //todo
-        String absouletRoute = "";
-        
-        absouletRoute = this.filter.initeFilte(absouletRoute);
-        String tips = this.filter.filteFileName(absouletRoute);
-        
-        if (!tips.isEmpty()) {
-            //输出tips里面的提示
-        } else {
-            tips = fileOperator.openFile(absouletRoute, 0, ramManager.getFat(), ramManager.getOftleList());
-            if (!tips.isEmpty()) {
-                //输出tips里面的提示
-            } else {
-                //提示成功
+        input.setVisible(true);
+        main.setDisable(true);
+        InputController inputController = InputController.getInputController();
+        inputController.setPathLabel("请输入打开的文件");
+        inputController.setApplyEvent(event -> {
+            String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
+            MessageController messageController = MessageController.getInstance();
+            if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
+                absouletRoute = this.filter.initeFilte(absouletRoute);
+                String tips = this.filter.filteFileName(absouletRoute);
+                if (!tips.isEmpty()) {
+                    //输出tips里面的提示
+                    messageController.showTips(tips);
+                } else {
+                    tips = fileOperator.openFile(absouletRoute, 1, ramManager.getFat(), ramManager.getOftleList());
+                    if (!tips.isEmpty()) {
+                        //输出tips里面的提示
+                        messageController.showTips(tips);
+                    } else {
+                        //提示成功
+                        messageController.showTips("成功打开文件");
+                    }
+                }
             }
-        }
+            StringBuffer text = new StringBuffer();
+            for(OFTLE oftle:ramManager.getOftleList())
+                text.append(oftle.getAbsoultRoute() + "\n");
+            openedFile.setText(text.toString());
+        });
     }
 
     @FXML
@@ -436,43 +551,75 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * 删除文件
+     */
     @FXML
     private void deleteFile() {
-        //todo
-        String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
-        absouletRoute = this.filter.initeFilte(absouletRoute);
+        input.setVisible(true);
+        main.setDisable(true);
+        InputController inputController = InputController.getInputController();
+        inputController.setPathLabel("请输入删除的文件路径");
+        inputController.setApplyEvent(event -> {
+            String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
+            MessageController messageController = MessageController.getInstance();
+            if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
+                absouletRoute = this.filter.initeFilte(absouletRoute);
 
-        String tips = this.filter.filteFileName(absouletRoute);
-        if (!tips.isEmpty()) {
-            //用一个框输出提示
-        } else {
-            tips = fileOperator.deleteFile(absouletRoute, ramManager.getFat(), ramManager.getOftleList());
+                String tips = this.filter.filteFileName(absouletRoute);
+                if (!tips.isEmpty()) {
+                    //用一个框输出提示
+                    messageController.showTips(tips);
+                } else {
+                    tips = fileOperator.deleteFile(absouletRoute, ramManager.getFat(), ramManager.getOftleList());
 
-            if (!tips.isEmpty()) {
-                //输出tips里面的提示
-            } else {
-                //提示成功
+                    if (!tips.isEmpty()) {
+                        //输出tips里面的提示
+                        messageController.showTips(tips);
+                    } else {
+                        //提示成功
+                        messageController.showTips("删除成功");
+                        reLoadFatTable();
+                    }
+                }
             }
-        }
+        });
     }
 
+    /**
+     * 关闭文件
+     */
     @FXML
     private void closeFile() {
-        //todo
-        String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
-        absouletRoute = this.filter.initeFilte(absouletRoute);
-
-        String tips = this.filter.filteFileName(absouletRoute);
-        if (!tips.isEmpty()) {
-            //用一个框输出提示
-        } else {
-            tips = fileOperator.closeFile(absouletRoute, ramManager.getFat(), ramManager.getOftleList());
-            if (tips.isEmpty()) {
-                //提示关闭成功！
-            } else {
-                //提示关闭失败！
+        input.setVisible(true);
+        main.setDisable(true);
+        InputController inputController = InputController.getInputController();
+        inputController.setPathLabel("请输入打开的文件");
+        inputController.setApplyEvent(event -> {
+            String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
+            MessageController messageController = MessageController.getInstance();
+            if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
+                absouletRoute = this.filter.initeFilte(absouletRoute);
+                String tips = this.filter.filteFileName(absouletRoute);
+                if (!tips.isEmpty()) {
+                    //用一个框输出提示
+                    messageController.showTips(tips);
+                } else {
+                    tips = fileOperator.closeFile(absouletRoute, ramManager.getFat(), ramManager.getOftleList());
+                    if (tips.isEmpty()) {
+                        //提示关闭成功！
+                        messageController.showTips("关闭成功");
+                    } else {
+                        //提示关闭失败！
+                        messageController.showTips(tips);
+                    }
+                }
             }
-        }
+            StringBuffer text = new StringBuffer();
+            for(OFTLE oftle:ramManager.getOftleList())
+                text.append(oftle.getAbsoultRoute() + "\n");
+            openedFile.setText(text.toString());
+        });
 
     }
 
@@ -487,10 +634,16 @@ public class MainController implements Initializable {
         mainController = this;
         input.setVisible(false);
         msg.setVisible(false);
+
         FatItemObservableList = FXCollections.observableArrayList(FatItemArrayList);
         diskNumber1.setCellValueFactory(new PropertyValueFactory<>("diskNumber1"));
         diskNumber2.setCellValueFactory(new PropertyValueFactory<>("diskNumber2"));
         fatTable.setItems(FatItemObservableList);
+
+        memoryItemObservableList = FXCollections.observableArrayList(memoryItems);
+        memoryColumn.setCellValueFactory(new PropertyValueFactory<>("memory"));
+        memoryTable.setItems(memoryItemObservableList);
+
         MessageController messageController = MessageController.getInstance();
         messageController.setApplyEvent(event1 -> {
             //消息窗口消失

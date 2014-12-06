@@ -234,7 +234,7 @@ public class FileOperator {
         while (fat[temp] != FATManager.END_FLAG) {
             temp = fat[temp];
         }
-        int lastAddressInDisk = diskManager.getUsingSizeOfCurrentDisk(temp) - 1;
+        int lastAddressInDisk = (diskManager.getUsingSizeOfCurrentDisk(temp)== 0) ? 0 : diskManager.getUsingSizeOfCurrentDisk(temp) - 1;
         /* 写指针的块内地址，也就是文件末尾（最后一个存储磁盘的块内地址），上一次文件结束符的位置 */
 
         Pointer writePointer = new Pointer(temp, lastAddressInDisk);
@@ -244,6 +244,8 @@ public class FileOperator {
                 item.getInitialDiskNumber(), item.getLength(), flag, readPointer, writePointer);
         if (!oftleManager.isOFTLEExist(oftleList, oftle)) {  //打开表里面就添加进去
             oftleList.add(oftle);
+        }else{
+            return "文件已被打开!";
         }
 
         fatManager.saveFATToDisk(fat);

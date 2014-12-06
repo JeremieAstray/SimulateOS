@@ -28,6 +28,7 @@ public class MessageController implements Initializable {
     public void showTips(String tips){
 
         MainController mainController = MainController.getInstance();
+        mainController.changeMain(true);
         mainController.changeMsg(true);
         text.setText(tips);
     }

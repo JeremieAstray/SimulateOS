@@ -13,7 +13,7 @@ public class OFTLEManager {
     }
 
     public boolean isOFTLEExist(ArrayList<OFTLE> oftleList, OFTLE oftle) {
-        return oftleList.indexOf(oftle) != -1;
+        return oftleList.contains(oftle);
     }
 
     public int returnOFTLEIndex(ArrayList<OFTLE> oftleList, String absouletRoute) {

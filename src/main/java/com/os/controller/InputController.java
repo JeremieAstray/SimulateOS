@@ -4,6 +4,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
@@ -23,9 +24,11 @@ public class InputController implements Initializable {
     @FXML
     private TextField path;
     @FXML
-    private Label pathLabel;
+    private Label pathLabel,text;
     @FXML
     private Button apply,cancel;
+    @FXML
+    private ComboBox<String> selected;
 
     public void setPathLabel(String pathLabelStr){
         pathLabel.setText(pathLabelStr);
@@ -48,5 +51,8 @@ public class InputController implements Initializable {
             mainController.changeInput(false);
 
         });
+        selected.getItems().add("1普通文件");
+        selected.getItems().add("2只读文件");
+        selected.setValue("1普通文件");
     }
 }
