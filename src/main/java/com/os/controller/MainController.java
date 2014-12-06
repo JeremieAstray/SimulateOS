@@ -38,31 +38,33 @@ public class MainController implements Initializable {
     @FXML
     private Button loadFatTableButton;
     @FXML
-    private TableView fatTable,memoryTable;
+    private TableView fatTable, memoryTable;
     @FXML
     private TreeView pathTree;
     @FXML
-    private TextArea openedFile,currentFileContent;
+    private TextArea openedFile, currentFileContent;
     @FXML
     private TableColumn diskNumber1, diskNumber2;
     @FXML
     private Pane main;
     @FXML
-    private AnchorPane input,msg;
+    private AnchorPane input, msg;
 
     private static MainController mainController;
 
-    public static MainController getInstance(){
+    public static MainController getInstance() {
         return mainController;
     }
 
-    public void changeMain(boolean flag){
+    public void changeMain(boolean flag) {
         main.setDisable(flag);
     }
-    public void changeInput(boolean flag){
+
+    public void changeInput(boolean flag) {
         input.setVisible(flag);
     }
-    public void changeMsg(boolean flag){
+
+    public void changeMsg(boolean flag) {
         msg.setVisible(flag);
     }
     private ObservableList<FatItem> FatItemObservableList;
@@ -163,7 +165,6 @@ public class MainController implements Initializable {
         FatItemObservableList.addAll(FatItemArrayList);
     }
 
-
     /**
      * 创建文件目录
      */
@@ -176,7 +177,7 @@ public class MainController implements Initializable {
         inputController.setApplyEvent(event -> {
             String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
             MessageController messageController = MessageController.getInstance();
-            if(!(absouletRoute==null||absouletRoute.isEmpty()||"".equals(absouletRoute))) {
+            if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
                 absouletRoute = filter.initeFilte(absouletRoute);
                 String tips = filter.filteDirectoryName(absouletRoute);
                 if (!tips.isEmpty()) {
@@ -187,13 +188,13 @@ public class MainController implements Initializable {
                     if (!tips.isEmpty()) {
                         //输出失败的原因，原因被存储在tips中
                         messageController.showTips(tips);
-                    }else {
+                    } else {
                         messageController.showTips("创建目录成功");
                         //重新加载Fat表
                         reLoadFatTable();
                     }
                 }
-            }else{
+            } else {
                 //目录为空
                 messageController.showTips("目录路径为空");
             }
@@ -237,7 +238,7 @@ public class MainController implements Initializable {
         inputController.setApplyEvent(event -> {
             String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
             MessageController messageController = MessageController.getInstance();
-            if(!(absouletRoute==null||absouletRoute.isEmpty()||"".equals(absouletRoute))) {
+            if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
                 absouletRoute = filter.initeFilte(absouletRoute);
                 String tips = filter.filteDirectoryName(absouletRoute);
                 if (!tips.isEmpty()) {
@@ -255,7 +256,7 @@ public class MainController implements Initializable {
                         reLoadFatTable();
                     }
                 }
-            }else{
+            } else {
                 //目录为空
                 messageController.showTips("目录路径为空");
             }
@@ -333,12 +334,40 @@ public class MainController implements Initializable {
     @FXML
     private void createFile() {
         //todo
-
+        String absouletRoute = "";
+        
+        absouletRoute = this.filter.initeFilte(absouletRoute);
+        String tips = this.filter.filteFileName(absouletRoute);
+        if (!tips.isEmpty()) {
+            //输出tips里面的提示
+        } else {
+            tips = fileOperator.creatFile(absouletRoute, attribute, ramManager.getFat(), ramManager.getOftleList());
+            if (!tips.isEmpty()) {
+                //输出tips里面的提示
+            } else {
+                //提示成功
+            }
+        }
     }
 
     @FXML
-    private void openFile(){
+    private void openFile() {
         //todo
+        String absouletRoute = "";
+        
+        absouletRoute = this.filter.initeFilte(absouletRoute);
+        String tips = this.filter.filteFileName(absouletRoute);
+        
+        if (!tips.isEmpty()) {
+            //输出tips里面的提示
+        } else {
+            tips = fileOperator.openFile(absouletRoute, 0, ramManager.getFat(), ramManager.getOftleList());
+            if (!tips.isEmpty()) {
+                //输出tips里面的提示
+            } else {
+                //提示成功
+            }
+        }
     }
 
     @FXML

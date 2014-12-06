@@ -57,6 +57,21 @@ public class Filter {
 
         String[] s = absoluteRoute.split("/");  //将路径名分隔
 
+        switch (s[0].toUpperCase()) {
+            case "C:":
+                break;
+            case "D:":
+                break;
+            case "E:":
+                break;
+            case "F:":
+                break;
+            case "G:":
+                break;
+            default:
+                return "你输入的根目录非法！";
+        }
+
         for (int i = 1; i < s.length; i++) {
             String subDirectory = s[i];
             if (subDirectory.isEmpty()) {
@@ -90,6 +105,21 @@ public class Filter {
 
         String[] s = absoluteRoute.split("/");  //将路径名分隔
 
+        switch (s[0].toUpperCase()) {
+            case "C:":
+                break;
+            case "D:":
+                break;
+            case "E:":
+                break;
+            case "F:":
+                break;
+            case "G:":
+                break;
+            default:
+                return "你输入的根目录非法！";
+        }
+
         for (int i = 1; i < s.length - 1; i++) {  //扫描创建文件的父目录情况
             String subDirectory = s[i];
             if (subDirectory.isEmpty()) {
@@ -102,7 +132,7 @@ public class Filter {
 //                return false;
                 return "你输入的第" + (i + 1) + "层" + "目录名的长度超过3！";
             }
-            if (subDirectory.matches("[^$^\\.]+")) {
+            if (!subDirectory.matches("[^$^\\.]+")) {
 //                System.out.println("第" + (i + 1) + "层" + "目录名中含有非法字符\"$\"或者\".\"");
 //                return false;
                 return "你输入的第" + (i + 1) + "层" + "目录名中含有非法字符\"$\"或者\".\"";
