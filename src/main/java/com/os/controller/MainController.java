@@ -205,7 +205,6 @@ public class MainController implements Initializable {
                 //目录为空
                 messageController.showTips("目录路径为空");
             }
-
         });
     }
 
@@ -290,6 +289,8 @@ public class MainController implements Initializable {
                     //用一个框输出提示
                     messageController.showTips(tips);
                 } else {
+                    ramManager.setRamSpaceForWrite(new ArrayList<>());
+                    
                     String test = UUID.randomUUID().toString();
                     for(int i=0;i<test.length();i++){
                         ramManager.getRamSpaceForWrite().add(test.charAt(i));
@@ -328,7 +329,6 @@ public class MainController implements Initializable {
                     }
                     //ramManager.setRamSpaceForWrite(new ArrayList<>());
                 }
-
             }
             loadMemoryTable();
             StringBuffer text = new StringBuffer();
@@ -594,7 +594,7 @@ public class MainController implements Initializable {
         input.setVisible(true);
         main.setDisable(true);
         InputController inputController = InputController.getInputController();
-        inputController.setPathLabel("请输入打开的文件");
+        inputController.setPathLabel("请输入要关闭的文件");
         inputController.setApplyEvent(event -> {
             String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
             MessageController messageController = MessageController.getInstance();

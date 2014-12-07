@@ -273,7 +273,7 @@ public class FileOperator {
                 if (fileInformationPerDisk.get(index) != '#') {  //只允许读一次文件结束符
                     while (readIndex < readLength) {  //读的长度结束了就必需停止
                         if (fileInformationPerDisk.get(index) == '#') {  //读到文件结束符，请结束
-                            ramSpace.add(fileInformationPerDisk.get(index));
+                            //ramSpace.add(fileInformationPerDisk.get(index));
                             temp_b_num = index;
                             readIndex++;
                             break;
@@ -314,7 +314,7 @@ public class FileOperator {
                 if (fileInformationPerDisk.get(index) != '#') {  //只允许读一次文件结束符
                     while (readIndex < readLength) {
                         if (fileInformationPerDisk.get(index) == '#') {
-                            ramSpace.add(fileInformationPerDisk.get(index));
+                            //ramSpace.add(fileInformationPerDisk.get(index));
                             temp_b_num = index;
                             readIndex++;
                             break;

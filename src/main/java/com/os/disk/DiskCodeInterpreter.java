@@ -75,7 +75,6 @@ public class DiskCodeInterpreter {
 
     public ArrayList<CatalogueItem> explainDiskInformationForCatalogueFormat(ArrayList<Integer> diskOriginInformation) { //以后实现的时候把此传递参数改为ArrayList//
         ArrayList<CatalogueItem> catalogueItemList = new ArrayList<>();
-        System.out.println("size: "+diskOriginInformation.size());
         for (int i = 0; i < diskOriginInformation.size(); i += 8) {
             String tempS = "";
             for (int j = i; j < i + 3; j++) {
@@ -141,6 +140,7 @@ public class DiskCodeInterpreter {
     public void loadTypeList() {
         this.typeList[0] = "";  //代表空类型，暂定
         this.typeList[1] = "txt";
-        this.typeListSize = 2;
+        this.typeList[2] = "dat";
+        this.typeListSize = 3;
     }
 }

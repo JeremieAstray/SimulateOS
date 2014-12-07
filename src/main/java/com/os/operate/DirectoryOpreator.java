@@ -19,7 +19,6 @@ public class DirectoryOpreator {
         int temp = diskNumber;
         ArrayList<CatalogueItem> catalogueItemList = new ArrayList<>();
         ArrayList<CatalogueItem> tempCatalogueItemList;
-        System.out.println("temp: "+temp);
 
         do {
             tempCatalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(temp);
@@ -34,9 +33,9 @@ public class DirectoryOpreator {
 
     public int searchDiskNumberOfStoringCatalogueInformation(String absouletRoute, int[] fat) {
         // 路径来源暂定 //
-
+        
         if (absouletRoute.isEmpty()) {  //元目录的盘块号
-            return DiskManager.ORIGINAL_DISK_NUMBER;
+            return DiskManager.ORIGINAL_DISK_NUMBER;  //暂定增加功能//
         }
         /* 返回2号磁盘的格式化内容 */
 
@@ -170,10 +169,8 @@ public class DirectoryOpreator {
 //            fatherDirectory = "/";
 //        } else {
         fatherDirectory = absouletRoute.substring(0, absouletRoute.lastIndexOf('/'));
-        System.out.println(fatherDirectory);
 //        }
         subDirectory = absouletRoute.substring(absouletRoute.lastIndexOf("/") + 1);
-        System.out.println(subDirectory);
 
         int diskNumber;  //记录父目录的存储磁盘号
         if ((diskNumber = this.searchDiskNumberOfStoringCatalogueInformation(fatherDirectory, fat)) == -1) {

@@ -18,6 +18,28 @@ public class Filter {
     }
 
     public String initeFilte(String absoluteRoute) {
+        String tempAbsoulteRoute = "";
+        int index = 0;
+        while (index < absoluteRoute.length()) {  //处理路径分隔符问题
+            if (absoluteRoute.charAt(index) == '\\') {
+                tempAbsoulteRoute += '/';
+                index++;
+            } else if (index < absoluteRoute.length() - 1
+                    && absoluteRoute.charAt(index) == '/'
+                    && absoluteRoute.charAt(index + 1) == '/') {
+                tempAbsoulteRoute += '/';
+                index += 2;
+            } else {
+                tempAbsoulteRoute += absoluteRoute.charAt(index);
+                index++;
+            }
+        }
+
+        absoluteRoute = "";
+        for (int i = 0; i < tempAbsoulteRoute.length(); i++) {
+            absoluteRoute += tempAbsoulteRoute.charAt(i);
+        }
+
         if (absoluteRoute.lastIndexOf("/") == absoluteRoute.length() - 1) {
             return absoluteRoute.substring(0, absoluteRoute.length() - 1);
         } else {
@@ -27,7 +49,7 @@ public class Filter {
 
     public String filteDirectoryName(String absoluteRoute) {
         if (absoluteRoute.lastIndexOf("/") == -1) {
-            if (absoluteRoute.length() == 0) {
+            if (absoluteRoute.length() == 0) {   //暂定增加功能//
                 //return true;
                 return "";
             } else {
@@ -122,7 +144,7 @@ public class Filter {
 
         for (int i = 1; i < s.length - 1; i++) {  //扫描创建文件的父目录情况
             String subDirectory = s[i];
-            if (subDirectory.isEmpty()) {
+            if (subDirectory.isEmpty()) {//暂定增加功能//
 //                System.out.println("第" + (i + 1) + "层" + "目录的名字为空！");
 //                return false;
                 return "你输入的第" + (i + 1) + "层" + "目录的名字为空！";
@@ -148,10 +170,10 @@ public class Filter {
         String fileName = s[s.length - 1].substring(0, s[s.length - 1].lastIndexOf("."));
         String fileType = s[s.length - 1].substring(s[s.length - 1].lastIndexOf(".") + 1);
 
-        if (fileName.matches(".")) {
+        if (!fileName.matches("[^$^\\.]+")) {
 //            System.out.println("文件名中含非法字符\".\"！");
 //            return false;
-            return "文件名中含非法字符\".\"！";
+            return "文件名中含非法字符\".\"或者\".\"！";
         }
         if (fileName.length() > 3) {
 //            System.out.println("文件名长度超过3！");
