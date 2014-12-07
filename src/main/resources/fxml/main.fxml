@@ -75,14 +75,20 @@
             <Button fx:id="showFileContenr" onAction="#showFileInfo" layoutX="983.0" layoutY="80.0"
                     mnemonicParsing="false" prefHeight="35.0"
                     prefWidth="90.0" text="显示文件内容"/>
-            <TextArea fx:id="openedFile" layoutX="467.0" layoutY="150.0" prefHeight="143.0" prefWidth="606.0"/>
+            <TextArea editable="false" fx:id="openedFile" layoutX="467.0" layoutY="150.0" prefHeight="143.0" prefWidth="606.0"/>
             <Label layoutX="467.0" layoutY="120.0" prefHeight="30.0" prefWidth="142.0" text="已打开文件表">
                 <font>
                     <Font size="18.0"/>
                 </font>
             </Label>
-            <TextArea fx:id="currentFileContent" layoutX="465.0" layoutY="334.0" prefHeight="381.0" prefWidth="606.0"/>
+            <TextArea editable="false" fx:id="currentFileContent" layoutX="465.0" layoutY="334.0" prefHeight="381.0" prefWidth="303.0"/>
+            <TextArea fx:id="writeFileContent" layoutX="768.0" layoutY="334.0" prefHeight="381.0" prefWidth="303.0"/>
             <Label layoutX="465.0" layoutY="302.0" prefHeight="30.0" prefWidth="142.0" text="文件内容">
+                <font>
+                    <Font size="18.0"/>
+                </font>
+            </Label>
+            <Label layoutX="768.0" layoutY="302.0" prefHeight="30.0" prefWidth="142.0" text="写入的文件内容">
                 <font>
                     <Font size="18.0"/>
                 </font>
