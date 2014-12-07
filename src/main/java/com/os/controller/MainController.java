@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.UUID;
+import javafx.event.EventType;
 
 /**
  * Created by Jeremie on 2014/10/13.
@@ -85,6 +86,7 @@ public class MainController implements Initializable {
     private String something;
     private int[] attribute = {0, 0, 1, 0, 0, 0, 0, 0};
     private int[] t_attribute = {0, 0, 0, 1, 0, 0, 0, 0};
+    private TreeItem<FileTreeItem> itemTreeItem = new TreeItem<>(new FileTreeItem(null, "我的电脑", true));
 
     private ObservableList<MemoryItem> memoryItemObservableList;
     private ArrayList<MemoryItem> memoryItems = new ArrayList<>();
@@ -216,6 +218,20 @@ public class MainController implements Initializable {
                 messageController.showTips("目录路径为空");
             }
         });
+    }
+
+    @FXML
+    private void getCompleteDirectoryInfo(TreeItem<FileTreeItem> fatherItemTreeItem, int diskNumber) {
+        ArrayList<CatalogueItem> catalogueItemList = directoryOpreator.getCompleteCatalogueItemFormatInformationFromDisk(diskNumber, ramManager.getFat());
+        for (CatalogueItem catalogueItem : catalogueItemList) {
+            if (catalogueItem.getAttribute()[3] == 1) {
+                TreeItem<FileTreeItem> tempItemTreeItem = new TreeItem<>(new FileTreeItem(null, catalogueItem.getName(), true));
+                getCompleteDirectoryInfo(tempItemTreeItem, catalogueItem.getInitialDiskNumber());
+                fatherItemTreeItem.getChildren().add(tempItemTreeItem);
+            } else {
+                fatherItemTreeItem.getChildren().add(new TreeItem<>(new FileTreeItem(null, catalogueItem.getName() + catalogueItem.getType(), false)));
+            }
+        }
     }
 
     @FXML

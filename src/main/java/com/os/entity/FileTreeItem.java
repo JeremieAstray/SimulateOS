@@ -8,10 +8,12 @@ import javafx.scene.image.Image;
 public class FileTreeItem {
     public Image image;
     public String name;
+    public boolean attribute;
 
-    public FileTreeItem(Image image, String name) {
+    public FileTreeItem(Image image, String name,boolean attribute) {
         this.image = image;
         this.name = name;
+        this.attribute = attribute;
     }
 
     public Image getImage() {
