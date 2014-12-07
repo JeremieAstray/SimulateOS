@@ -490,68 +490,81 @@ public class MainController implements Initializable {
 
     @FXML
     private void showFileInfo() {
-        //todo
-        String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
-        //可能要用正则表达式判断absouletRoute是否合法//
-        absouletRoute = this.filter.initeFilte(absouletRoute);
-
-        String tips = this.filter.filteFileName(absouletRoute);
-        if (!tips.isEmpty()) {
-            //用一个框输出提示
-        } else {
-            String fatherDirectory, fileNameType;
-            fatherDirectory = absouletRoute.substring(0, absouletRoute.lastIndexOf('/'));
-            fileNameType = absouletRoute.substring(absouletRoute.lastIndexOf('/') + 1);
+        input.setVisible(true);
+        main.setDisable(true);
+        InputController inputController = InputController.getInputController();
+        inputController.setPathLabel("请输入文件路径");
+        inputController.setApplyEvent(event -> {
+            String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
+            MessageController messageController = MessageController.getInstance();
+            if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
+                //可能要用正则表达式判断absouletRoute是否合法//
+                absouletRoute = this.filter.initeFilte(absouletRoute);
+                String tips = this.filter.filteFileName(absouletRoute);
+                if (!tips.isEmpty()) {
+                    //用一个框输出提示
+                    messageController.showTips(tips);
+                } else {
+                    String fatherDirectory, fileNameType;
+                    fatherDirectory = absouletRoute.substring(0, absouletRoute.lastIndexOf('/'));
+                    fileNameType = absouletRoute.substring(absouletRoute.lastIndexOf('/') + 1);
             /* 父目录-子目录搜索法 */
 
-            int diskNumber;
-            if ((diskNumber = directoryOpreator.searchDiskNumberOfStoringCatalogueInformation(fatherDirectory, ramManager.getFat())) == -1) {
-                //提示该文件不存在
-            } else {
-                ArrayList<CatalogueItem> catalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
-                boolean isFileExist = false;
+                    int diskNumber;
+                    if ((diskNumber = directoryOpreator.searchDiskNumberOfStoringCatalogueInformation(fatherDirectory, ramManager.getFat())) == -1) {
+                        //提示该文件不存在
+                        messageController.showTips("文件不存在");
+                    } else {
+                        ArrayList<CatalogueItem> catalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
+                        boolean isFileExist = false;
 
-                CatalogueItem catalogueItem = null;
-                for (CatalogueItem catalogueItemList1 : catalogueItemList) {
-                    String t_fileCompleteName = "";
-                    for (int i = 0; i < catalogueItemList1.getName().length(); i++) {
-                        if (catalogueItemList1.getName().charAt(i) != '$') {
-                            t_fileCompleteName += catalogueItemList1.getName().charAt(i);
-                        }
-                    }
-                    t_fileCompleteName += catalogueItemList1.getType();
-                    if (t_fileCompleteName.equals(fileNameType)) {
-                        catalogueItem = catalogueItemList1;
-                        isFileExist = true;
-                        break;
-                    }
-                }
-                if (!isFileExist) {
-                    //提示该文件不存在
-                }
-
-                if (oftleManager.returnOFTLEIndex(ramManager.getOftleList(), absouletRoute) != -1) {
-                    //提示文件已被打开，无法查看
-                } else {
-//                OFTLE tempOFTLET = oftleList.get(oftleNumber);
-                    int temp = catalogueItem.getInitialDiskNumber();
-                    ArrayList<Character> fileInformationPerDisk;
-                    String f_information = "";
-
-                    do {
-                        fileInformationPerDisk = diskManager.getFileFormatInformationFromDisk(temp);
-                        for (Character fileInformationPerDisk1 : fileInformationPerDisk) {
-                            if (fileInformationPerDisk1 != '#') {
-                                f_information += fileInformationPerDisk1;
+                        CatalogueItem catalogueItem = null;
+                        for (CatalogueItem catalogueItemList1 : catalogueItemList) {
+                            String t_fileCompleteName = "";
+                            for (int i = 0; i < catalogueItemList1.getName().length(); i++) {
+                                if (catalogueItemList1.getName().charAt(i) != '$') {
+                                    t_fileCompleteName += catalogueItemList1.getName().charAt(i);
+                                }
+                            }
+                            t_fileCompleteName += catalogueItemList1.getType();
+                            if (t_fileCompleteName.equals(fileNameType)) {
+                                catalogueItem = catalogueItemList1;
+                                isFileExist = true;
+                                break;
                             }
                         }
-                        temp = ramManager.getFat()[temp];
-                    } while (temp != FATManager.END_FLAG);
+                        if (!isFileExist) {
+                            //提示该文件不存在
+                            messageController.showTips("文件不存在");
+                        }
 
-                    //将f_information内容用一个框显示出来
+                        if (oftleManager.returnOFTLEIndex(ramManager.getOftleList(), absouletRoute) != -1) {
+                            //提示文件已被打开，无法查看
+                            messageController.showTips("文件已被打开，无法查看!");
+                        } else {
+//                OFTLE tempOFTLET = oftleList.get(oftleNumber);
+                            int temp = catalogueItem.getInitialDiskNumber();
+                            ArrayList<Character> fileInformationPerDisk;
+                            String f_information = "";
+
+                            do {
+                                fileInformationPerDisk = diskManager.getFileFormatInformationFromDisk(temp);
+                                for (Character fileInformationPerDisk1 : fileInformationPerDisk) {
+                                    if (fileInformationPerDisk1 != '#') {
+                                        f_information += fileInformationPerDisk1;
+                                    }
+                                }
+                                temp = ramManager.getFat()[temp];
+                            } while (temp != FATManager.END_FLAG);
+
+                            //将f_information内容用一个框显示出来
+                            currentFileContent.setText(f_information);
+                            messageController.showTips("显示文件内容成功");
+                        }
+                    }
                 }
             }
-        }
+        });
     }
 
     /**
