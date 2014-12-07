@@ -50,7 +50,7 @@ public class MainController implements Initializable {
     @FXML
     private TextArea openedFile, currentFileContent;
     @FXML
-    private TableColumn diskNumber1, diskNumber2,memoryColumn;
+    private TableColumn diskNumber1, diskNumber2, memoryColumn;
     @FXML
     private Pane main;
     @FXML
@@ -90,7 +90,6 @@ public class MainController implements Initializable {
 
     private ObservableList<MemoryItem> memoryItemObservableList;
     private ArrayList<MemoryItem> memoryItems = new ArrayList<>();
-
 
     private MsgQueue<String> queue = new MsgQueue<>();
 
@@ -293,9 +292,9 @@ public class MainController implements Initializable {
                     messageController.showTips(tips);
                 } else {
                     ramManager.setRamSpaceForWrite(new ArrayList<>());
-                    
+
                     String test = UUID.randomUUID().toString();
-                    for(int i=0;i<test.length();i++){
+                    for (int i = 0; i < test.length(); i++) {
                         ramManager.getRamSpaceForWrite().add(test.charAt(i));
                     }
 
@@ -335,8 +334,9 @@ public class MainController implements Initializable {
             }
             loadMemoryTable();
             StringBuffer text = new StringBuffer();
-            for (OFTLE oftle : ramManager.getOftleList())
+            for (OFTLE oftle : ramManager.getOftleList()) {
                 text.append(oftle.getAbsoultRoute() + "\n");
+            }
             openedFile.setText(text.toString());
             reLoadFatTable();
         });
@@ -347,38 +347,38 @@ public class MainController implements Initializable {
      */
     private void loadMemoryTable() {
         memoryItems.clear();
-        int i=0;
+        int i = 0;
         memoryItems.add(new MemoryItem("=======读内存======="));
         StringBuffer string = new StringBuffer();
-        for(char c :ramManager.getRamSpaceForRead()){
+        for (char c : ramManager.getRamSpaceForRead()) {
             i++;
             string.append(c);
-            if(i==7){
+            if (i == 7) {
                 i = 0;
                 memoryItems.add(new MemoryItem(string.toString()));
-                string.delete(0,string.length()-1);
+                string.delete(0, string.length() - 1);
             }
         }
-        if(i!=0){
+        if (i != 0) {
             i = 0;
             memoryItems.add(new MemoryItem(string.toString()));
-            string.delete(0,string.length()-1);
+            string.delete(0, string.length() - 1);
         }
 
         memoryItems.add(new MemoryItem("=======写内存======="));
-        for(char c :ramManager.getRamSpaceForWrite()){
+        for (char c : ramManager.getRamSpaceForWrite()) {
             i++;
             string.append(c);
-            if(i==7){
+            if (i == 7) {
                 i = 0;
                 memoryItems.add(new MemoryItem(string.toString()));
-                string.delete(0,string.length()-1);
+                string.delete(0, string.length() - 1);
             }
         }
-        if(i!=0){
+        if (i != 0) {
             i = 0;
             memoryItems.add(new MemoryItem(string.toString()));
-            string.delete(0,string.length()-1);
+            string.delete(0, string.length() - 1);
         }
         memoryItemObservableList.clear();
         memoryItemObservableList.addAll(memoryItems);
@@ -415,8 +415,9 @@ public class MainController implements Initializable {
                 }
             }
             StringBuffer text = new StringBuffer();
-            for (OFTLE oftle : ramManager.getOftleList())
+            for (OFTLE oftle : ramManager.getOftleList()) {
                 text.append(oftle.getAbsoultRoute() + "\n");
+            }
             openedFile.setText(text.toString());
         });
     }
@@ -449,8 +450,9 @@ public class MainController implements Initializable {
                 }
             }
             StringBuffer text = new StringBuffer();
-            for(OFTLE oftle:ramManager.getOftleList())
+            for (OFTLE oftle : ramManager.getOftleList()) {
                 text.append(oftle.getAbsoultRoute() + "\n");
+            }
             openedFile.setText(text.toString());
         });
     }
@@ -482,8 +484,9 @@ public class MainController implements Initializable {
                 }
             }
             StringBuffer text = new StringBuffer();
-            for(OFTLE oftle:ramManager.getOftleList())
+            for (OFTLE oftle : ramManager.getOftleList()) {
                 text.append(oftle.getAbsoultRoute() + "\n");
+            }
             openedFile.setText(text.toString());
         });
     }
@@ -632,8 +635,9 @@ public class MainController implements Initializable {
                 }
             }
             StringBuffer text = new StringBuffer();
-            for(OFTLE oftle:ramManager.getOftleList())
+            for (OFTLE oftle : ramManager.getOftleList()) {
                 text.append(oftle.getAbsoultRoute() + "\n");
+            }
             openedFile.setText(text.toString());
         });
 
@@ -671,8 +675,14 @@ public class MainController implements Initializable {
         });
         //关闭窗口事件
         Main.stage.setOnCloseRequest(event -> {
-            System.out.println(1132);
-            System.out.println(123);
+            ArrayList<String> closeFileAbsoulteRoute = new ArrayList<>();
+            for(OFTLE oftle : ramManager.getOftleList()){
+                closeFileAbsoulteRoute.add(oftle.getAbsoultRoute());
+            }
+            
+            for (String fileAbsoulteRoute : closeFileAbsoulteRoute) {  //关闭进程的同时把所有打开的文件都关掉
+                fileOperator.closeFile(fileAbsoulteRoute, ramManager.getFat(), ramManager.getOftleList());
+            }
             System.exit(0);
         });
 
