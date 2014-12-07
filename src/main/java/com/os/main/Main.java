@@ -12,6 +12,7 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
+    public static Stage stage;
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/main.fxml"));
@@ -19,6 +20,7 @@ public class Main extends Application {
         primaryStage.setResizable(false);
         primaryStage.setTitle("SimulateOS!");
         primaryStage.setScene(scene);
+        stage = primaryStage;
         primaryStage.show();
     }
 

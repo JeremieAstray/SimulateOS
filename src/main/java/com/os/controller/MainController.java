@@ -2,7 +2,9 @@ package com.os.controller;
 
 import com.os.disk.DiskManager;
 import com.os.entity.FatItem;
+import com.os.entity.FileTreeItem;
 import com.os.entity.MemoryItem;
+import com.os.main.Main;
 import com.os.operate.CatalogueItem;
 import com.os.operate.DirectoryOpreator;
 import com.os.operate.FileOperator;
@@ -22,6 +24,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.WindowEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +46,7 @@ public class MainController implements Initializable {
     @FXML
     private TableView fatTable, memoryTable;
     @FXML
-    private TreeView pathTree;
+    private TreeView<FileTreeItem> pathTree;
     @FXML
     private TextArea openedFile, currentFileContent;
     @FXML
@@ -653,5 +656,12 @@ public class MainController implements Initializable {
             input.setVisible(false);
             main.setDisable(false);
         });
+        //关闭窗口事件
+        Main.stage.setOnCloseRequest(event -> {
+            System.out.println(1132);
+            System.out.println(123);
+            System.exit(0);
+        });
+
     }
 }

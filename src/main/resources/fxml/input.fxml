@@ -18,6 +18,9 @@
                 <Font size="20.0"/>
             </font>
         </Label>
-        <ComboBox fx:id="selected" visible="false" layoutX="48.0" layoutY="100.0" prefHeight="23.0" prefWidth="120.0"/>
+        <ComboBox fx:id="selected" layoutX="48.0" layoutY="100.0" prefHeight="23.0" prefWidth="120.0" visible="false"/>
+        <Label fx:id="readLengthLabel" visible="false" alignment="CENTER_RIGHT" layoutX="48.0" layoutY="102.0" prefHeight="25.0"
+               prefWidth="156.0" text="读取的长度："/>
+        <TextField fx:id="readerLength" visible="false" layoutX="205.0" layoutY="100.0" prefHeight="25.0" prefWidth="48.0"/>
     </children>
 </AnchorPane>

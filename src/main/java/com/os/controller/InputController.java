@@ -24,9 +24,9 @@ public class InputController implements Initializable {
     @FXML
     private TextField path;
     @FXML
-    private Label pathLabel,text;
+    private Label pathLabel,text,readLengthLabel;
     @FXML
-    private Button apply,cancel;
+    private Button apply,cancel,readLength;
     @FXML
     private ComboBox<String> selected;
 

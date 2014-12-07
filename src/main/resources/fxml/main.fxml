@@ -11,7 +11,7 @@
             <Button fx:id="initDiskInfoButton" layoutX="254.0" layoutY="45.0" onAction="#initDiskInfo" prefHeight="70.0"
                     prefWidth="150.0" text="初始化磁盘信息"/>
             <Button fx:id="loadFatTableButton" layoutX="414.0" layoutY="45.0" onAction="#loadFatTable" prefHeight="70.0"
-                    prefWidth="150.0" text="加载Fat表"/>
+                    prefWidth="150.0" text="加载信息"/>
             <TableView fx:id="fatTable" layoutX="1085.0" layoutY="45.0" prefHeight="670.0" prefWidth="185.0">
                 <columns>
                     <TableColumn fx:id="diskNumber1" prefWidth="92.0" text="盘块号"/>
