@@ -221,6 +221,8 @@ public class FileOperator {
             return "该文件不存在，无法打开文件！";
         }
 
+        System.out.println(catalogueItemList.get(fileNumber).getAttribute());
+
         if (flag == 1 && catalogueItemList.get(fileNumber).getAttribute()[0] == 1) {
 //            System.out.println("打开失败，不可以用写的方式打开只读文件");
 //            return false;
@@ -234,7 +236,7 @@ public class FileOperator {
         while (fat[temp] != FATManager.END_FLAG) {
             temp = fat[temp];
         }
-        int lastAddressInDisk = (diskManager.getUsingSizeOfCurrentDisk(temp)== 0) ? 0 : diskManager.getUsingSizeOfCurrentDisk(temp) - 1;
+        int lastAddressInDisk = (diskManager.getUsingSizeOfCurrentDisk(temp) == 0) ? 0 : diskManager.getUsingSizeOfCurrentDisk(temp) - 1;
         /* 写指针的块内地址，也就是文件末尾（最后一个存储磁盘的块内地址），上一次文件结束符的位置 */
 
         Pointer writePointer = new Pointer(temp, lastAddressInDisk);
@@ -244,7 +246,7 @@ public class FileOperator {
                 item.getInitialDiskNumber(), item.getLength(), flag, readPointer, writePointer);
         if (!oftleManager.isOFTLEExist(oftleList, oftle)) {  //打开表里面就添加进去
             oftleList.add(oftle);
-        }else{
+        } else {
             return "文件已被打开!";
         }
 
@@ -353,6 +355,7 @@ public class FileOperator {
 
         int oftleNumber;
         if ((oftleNumber = oftleManager.returnOFTLEIndex(oftleList, absouletRoute)) != -1) {
+            System.out.println("yashi");
             OFTLE tempOFTLET = oftleList.get(oftleNumber);
             if (tempOFTLET.getFlag() == 0) {
 //                System.out.println("文件已用读方式打开，不能写此文件");
@@ -381,7 +384,7 @@ public class FileOperator {
                             int t_temp_d_num;
                             if ((t_temp_d_num = fatManager.updateFATForMallocANewDisk(fat)) == -1) {
 //                                System.out.println("磁盘已满，无法把内容完全写完！");
-                       
+
                                 temp_b_num--;
 
                                 tempOFTLET.getWrite().setD_num(temp_d_num);
@@ -417,9 +420,16 @@ public class FileOperator {
                 /* 记得修改增加的长度 */
             }
         } else {
-            if (!openFile(absouletRoute, 1, fat, oftleList).isEmpty()) {
+            String temp = openFile(absouletRoute, 1, fat, oftleList);
+            if (!temp.isEmpty()) {
 //                System.out.println("打开文件失败，无法写入！");
 //                return false;
+                switch (temp) {
+                    case "该文件不存在，无法打开文件！":
+                        return "文件不存在，无法写入！";
+                    case "打开失败，不可以用写的方式打开只读文件！":
+                        return "该文件为只读文件，无法写入！";
+                }
                 return "打开文件失败，无法写入！";
             } else {
                 OFTLE tempOFTLET = oftleList.get(oftleList.size() - 1);
@@ -448,7 +458,7 @@ public class FileOperator {
                             int t_temp_d_num;
                             if ((t_temp_d_num = fatManager.updateFATForMallocANewDisk(fat)) == -1) {
 //                                System.out.println("磁盘已满，无法把内容完全写完！");
-                                
+
                                 temp_b_num--;
 
                                 tempOFTLET.getWrite().setD_num(temp_d_num);

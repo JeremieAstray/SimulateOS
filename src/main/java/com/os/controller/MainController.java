@@ -45,7 +45,7 @@ public class MainController implements Initializable {
     @FXML
     private TreeView<FileTreeItem> pathTree;
     @FXML
-    private TextArea openedFile, currentFileContent,writeFileContent;
+    private TextArea openedFile, currentFileContent, writeFileContent;
     @FXML
     private TableColumn diskNumber1, diskNumber2, memoryColumn;
     @FXML
@@ -291,9 +291,9 @@ public class MainController implements Initializable {
             MessageController messageController = MessageController.getInstance();
             if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
                 absouletRoute = this.filter.initeFilte(absouletRoute);
-
-                //将用户从输入框里面输入的东西弄进主存//
+                //将用户从输入框里面输入的东西弄进主存
                 String tips = this.filter.filteFileName(absouletRoute);
+
                 if (!tips.isEmpty()) {
                     //用一个框输出提示
                     messageController.showTips(tips);
@@ -307,28 +307,36 @@ public class MainController implements Initializable {
 
                     int index = 0, b1_index = 0;
                     boolean isSucceed = true;
-                    while (index < ramManager.getRamSpaceForWrite().size()) {
-                        if (b1_index == ramManager.getBuffer1().length) {
+                    if (ramManager.getRamSpaceForWrite().isEmpty()) {
+                        tips = fileOperator.writeFile(absouletRoute, ramManager.getBuffer1(), b1_index, ramManager.getFat(), ramManager.getOftleList());
+                        if (!tips.isEmpty()) {
+                            isSucceed = false;
+                        }
+                    } else {
+                        while (index < ramManager.getRamSpaceForWrite().size()) {
+                            if (b1_index == ramManager.getBuffer1().length) {
+                                tips = fileOperator.writeFile(absouletRoute, ramManager.getBuffer1(), b1_index, ramManager.getFat(), ramManager.getOftleList());
+                                if (!tips.isEmpty()) {
+                                    b1_index = 0;
+                                    isSucceed = false;
+                                    break;
+                                }
+                                b1_index = 0;
+                            } else {
+                                ramManager.getBuffer1()[b1_index] = ramManager.getRamSpaceForWrite().get(index);
+                                b1_index++;
+                                index++;
+                            }
+                        }
+                        if (b1_index > 0 && isSucceed) {  //缓冲区内还有内容，还要再写一遍
                             tips = fileOperator.writeFile(absouletRoute, ramManager.getBuffer1(), b1_index, ramManager.getFat(), ramManager.getOftleList());
                             if (!tips.isEmpty()) {
                                 b1_index = 0;
                                 isSucceed = false;
-                                break;
                             }
-                            b1_index = 0;
-                        } else {
-                            ramManager.getBuffer1()[b1_index] = ramManager.getRamSpaceForWrite().get(index);
-                            b1_index++;
-                            index++;
                         }
                     }
-                    if (b1_index > 0 && isSucceed) {  //缓冲区内还有内容，还要再写一遍
-                        tips = fileOperator.writeFile(absouletRoute, ramManager.getBuffer1(), b1_index, ramManager.getFat(), ramManager.getOftleList());
-                        if (!tips.isEmpty()) {
-                            b1_index = 0;
-                            isSucceed = false;
-                        }
-                    }
+
                     if (isSucceed) {
                         //提示用户输入添加的信息成功
                         messageController.showTips("输入添加的信息成功");
@@ -524,7 +532,7 @@ public class MainController implements Initializable {
                     String fatherDirectory, fileNameType;
                     fatherDirectory = absouletRoute.substring(0, absouletRoute.lastIndexOf('/'));
                     fileNameType = absouletRoute.substring(absouletRoute.lastIndexOf('/') + 1);
-            /* 父目录-子目录搜索法 */
+                    /* 父目录-子目录搜索法 */
 
                     int diskNumber;
                     if ((diskNumber = directoryOpreator.searchDiskNumberOfStoringCatalogueInformation(fatherDirectory, ramManager.getFat())) == -1) {
@@ -561,7 +569,7 @@ public class MainController implements Initializable {
 //                OFTLE tempOFTLET = oftleList.get(oftleNumber);
                             int temp = catalogueItem.getInitialDiskNumber();
                             ArrayList<Character> fileInformationPerDisk;
-                            String f_information = absouletRoute+"\n";
+                            String f_information = absouletRoute + "\n";
 
                             do {
                                 fileInformationPerDisk = diskManager.getFileFormatInformationFromDisk(temp);
@@ -668,7 +676,25 @@ public class MainController implements Initializable {
             MessageController messageController = MessageController.getInstance();
             if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
                 //属性号码
+                absouletRoute = this.filter.initeFilte(absouletRoute);
+                String tips = this.filter.filteFileName(absouletRoute);
                 int num = inputController.getSelectNum();
+
+                if (!tips.isEmpty()) {
+                    //用一个框输出提示
+                    messageController.showTips(tips);
+                } else {
+                    tips = fileOperator.change(absouletRoute, num - 1, ramManager.getFat(), ramManager.getOftleList());
+                    if (!tips.isEmpty()) {
+                        messageController.showTips(tips);
+                    } else {
+                        if (num == 1) {
+                            messageController.showTips("文件修改为普通模式成功！");
+                        } else {
+                            messageController.showTips("文件修改为只读模式成功！");
+                        }
+                    }
+                }
             }
             inputController.closeSelected();
         });
