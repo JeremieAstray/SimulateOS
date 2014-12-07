@@ -16,10 +16,14 @@ import com.os.ram.RAMManager;
 import com.os.utils.MsgQueue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 
@@ -336,14 +340,11 @@ public class MainController implements Initializable {
                             messageController.showTips("空目录");
                             initDirectory();
                             //最后一层莫要展开
+                            extendsItemTree(routeIndexList);
                         } else {
                             initDirectory();
                             //最后一层也要展开
-                            /*ArrayList<Integer> integers = new ArrayList<Integer>();
-                             integers.add(0);
-                             integers.add(0);
-                             integers.add(1);
-                             extendsItemTree(integers);*/
+                            extendsItemTree(routeIndexList);
                         }
                     }
                 }
