@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import javafx.event.EventType;
@@ -271,13 +272,11 @@ public class MainController implements Initializable {
                             messageController.showTips("空目录");
                         } else {
                             initDirectory();
-                            itemTreeItem.setExpanded(true);
-                            TreeItem<FileTreeItem> subitem = itemTreeItem.getChildren().get(0);
-                            subitem.setExpanded(true);
-                            TreeItem<FileTreeItem> subitem2 = subitem.getChildren().get(0);
-                            subitem2.setExpanded(true);
-                            TreeItem<FileTreeItem> subitem3 = subitem2.getChildren().get(1);
-                            subitem3.setExpanded(true);
+                            /*ArrayList<Integer> integers = new ArrayList<Integer>();
+                            integers.add(0);
+                            integers.add(0);
+                            integers.add(1);
+                            extendsItemTree(integers);*/
                         }
                     }
                 }
@@ -285,6 +284,15 @@ public class MainController implements Initializable {
                 //可能还要记下当前所在目录//
             }
         });
+    }
+
+    private void extendsItemTree(ArrayList<Integer> list){
+        TreeItem<FileTreeItem>  item = itemTreeItem;
+        for(int i :list){
+            item.setExpanded(true);
+            item = item.getChildren().get(i);
+        }
+        item.setExpanded(true);
     }
 
     @FXML
