@@ -224,7 +224,7 @@ public class MainController implements Initializable {
         });
     }
 
-    private void initDirectory(){
+    private void initDirectory() {
         itemTreeItem.getChildren().clear();
         getCompleteDirectoryInfo(itemTreeItem, 2);
         pathTree.setRoot(itemTreeItem);
@@ -233,12 +233,48 @@ public class MainController implements Initializable {
     private void getCompleteDirectoryInfo(TreeItem<FileTreeItem> fatherItemTreeItem, int diskNumber) {
         ArrayList<CatalogueItem> catalogueItemList = directoryOpreator.getCompleteCatalogueItemFormatInformationFromDisk(diskNumber, ramManager.getFat());
         for (CatalogueItem catalogueItem : catalogueItemList) {
+            String tempS = "";
             if (catalogueItem.getAttribute()[3] == 1) {
-                TreeItem<FileTreeItem> tempItemTreeItem = new TreeItem<>(new FileTreeItem(null, catalogueItem.getName(), true));
+                for (int k = 0; k < catalogueItem.getName().length(); k++) {
+                    if (catalogueItem.getName().charAt(k) != '$') {  //必需特别地去处理这个‘$’符号
+                        tempS += catalogueItem.getName().charAt(k);
+                    }
+                }
+                TreeItem<FileTreeItem> tempItemTreeItem = new TreeItem<>(new FileTreeItem(null, tempS, true));
                 getCompleteDirectoryInfo(tempItemTreeItem, catalogueItem.getInitialDiskNumber());
                 fatherItemTreeItem.getChildren().add(tempItemTreeItem);
             } else {
-                fatherItemTreeItem.getChildren().add(new TreeItem<>(new FileTreeItem(null, catalogueItem.getName() + catalogueItem.getType(), false)));
+                for (int k = 0; k < catalogueItem.getName().length(); k++) {
+                    if (catalogueItem.getName().charAt(k) != '$') {
+                        tempS += catalogueItem.getName().charAt(k);
+                    }
+                }
+                tempS += catalogueItem.getType();
+                fatherItemTreeItem.getChildren().add(new TreeItem<>(new FileTreeItem(null, tempS, false)));
+            }
+        }
+    }
+
+    private void getDirectoryIndexList(ArrayList<Integer> routeIndexList, String[] routes, int cur, int diskNumber) {
+        if (cur == routes.length) {
+            return;
+        }
+
+        ArrayList<CatalogueItem> catalogueItemList = directoryOpreator.getCompleteCatalogueItemFormatInformationFromDisk(diskNumber, ramManager.getFat());
+
+        for (CatalogueItem catalogueItem : catalogueItemList) {
+            if (catalogueItem.getAttribute()[3] == 1) {
+                String tempS = "";
+                for (int k = 0; k < catalogueItem.getName().length(); k++) {
+                    if (catalogueItem.getName().charAt(k) != '$') {  //必需特别地去处理这个‘$’符号
+                        tempS += catalogueItem.getName().charAt(k);
+                    }
+                }
+                if (routes[cur].equals(tempS)) {
+                    routeIndexList.add(catalogueItemList.indexOf(catalogueItem));
+                    getDirectoryIndexList(routeIndexList, routes, cur + 1, catalogueItem.getInitialDiskNumber());
+                    break;
+                }
             }
         }
     }
@@ -254,8 +290,8 @@ public class MainController implements Initializable {
             MessageController messageController = MessageController.getInstance();
             if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
                 absouletRoute = this.filter.initeFilte(absouletRoute);
-
                 String tips = this.filter.filteDirectoryName(absouletRoute);
+
                 if (!tips.isEmpty()) {
                     //用一个框输出提示
                     messageController.showTips(tips);
@@ -267,16 +303,47 @@ public class MainController implements Initializable {
                     } else {
                         ArrayList<CatalogueItem> catalogueItemList = this.diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
 
+                        String[] routes = absouletRoute.split("/");
+                        ArrayList<Integer> routeIndexList = new ArrayList<>();
+                        int nextDiskNumber = DiskManager.ORIGINAL_DISK_NUMBER;
+                        switch (routes[0].toUpperCase()) {
+                            case "C:":
+                                routeIndexList.add(0);
+                                nextDiskNumber = DiskManager.C_DISK_NUMBER;
+                                break;
+                            case "D:":
+                                routeIndexList.add(1);
+                                nextDiskNumber = DiskManager.D_DISK_NUMBER;
+                                break;
+                            case "E:":
+                                routeIndexList.add(2);
+                                nextDiskNumber = DiskManager.E_DISK_NUMBER;
+                                break;
+                            case "F:":
+                                routeIndexList.add(3);
+                                nextDiskNumber = DiskManager.F_DISK_NUMBER;
+                                break;
+                            case "G:":
+                                routeIndexList.add(4);
+                                nextDiskNumber = DiskManager.G_DISK_NUMBER;
+                                break;
+                        }
+
+                        getDirectoryIndexList(routeIndexList, routes, 1, nextDiskNumber);
+
                         if (catalogueItemList.isEmpty()) {
                             //提示该目录是个空目录
                             messageController.showTips("空目录");
+                            initDirectory();
+                            //最后一层莫要展开
                         } else {
                             initDirectory();
+                            //最后一层也要展开
                             /*ArrayList<Integer> integers = new ArrayList<Integer>();
-                            integers.add(0);
-                            integers.add(0);
-                            integers.add(1);
-                            extendsItemTree(integers);*/
+                             integers.add(0);
+                             integers.add(0);
+                             integers.add(1);
+                             extendsItemTree(integers);*/
                         }
                     }
                 }
@@ -286,9 +353,9 @@ public class MainController implements Initializable {
         });
     }
 
-    private void extendsItemTree(ArrayList<Integer> list){
-        TreeItem<FileTreeItem>  item = itemTreeItem;
-        for(int i :list){
+    private void extendsItemTree(ArrayList<Integer> list) {
+        TreeItem<FileTreeItem> item = itemTreeItem;
+        for (int i : list) {
             item.setExpanded(true);
             item = item.getChildren().get(i);
         }
