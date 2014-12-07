@@ -155,6 +155,7 @@ public class MainController implements Initializable {
             reLoadFatTable();
             writeFileContent.setText("");
             currentFileContent.setText("");
+            initDirectory();
         } catch (IOException ex) {
             ex.printStackTrace();
             messageController.showTips("初始化磁盘信息失败");
@@ -169,6 +170,7 @@ public class MainController implements Initializable {
     private void loadFatTable() {
         ramManager.initRam();
         reLoadFatTable();
+        initDirectory();
     }
 
     /**
@@ -211,6 +213,7 @@ public class MainController implements Initializable {
                         messageController.showTips("创建目录成功");
                         //重新加载Fat表
                         reLoadFatTable();
+                        initDirectory();
                     }
                 }
             } else {
@@ -220,7 +223,12 @@ public class MainController implements Initializable {
         });
     }
 
-    @FXML
+    private void initDirectory(){
+        itemTreeItem.getChildren().clear();
+        getCompleteDirectoryInfo(itemTreeItem, 2);
+        pathTree.setRoot(itemTreeItem);
+    }
+
     private void getCompleteDirectoryInfo(TreeItem<FileTreeItem> fatherItemTreeItem, int diskNumber) {
         ArrayList<CatalogueItem> catalogueItemList = directoryOpreator.getCompleteCatalogueItemFormatInformationFromDisk(diskNumber, ramManager.getFat());
         for (CatalogueItem catalogueItem : catalogueItemList) {
@@ -236,29 +244,47 @@ public class MainController implements Initializable {
 
     @FXML
     private void showDirectoryInfo() {
-        //todo
-        String absouletRoute = "";//真正的absouleRoute从用户输入框获取//
-        absouletRoute = this.filter.initeFilte(absouletRoute);
+        input.setVisible(true);
+        main.setDisable(true);
+        InputController inputController = InputController.getInputController();
+        inputController.setPathLabel("请输入的文件目录");
+        inputController.setApplyEvent(event -> {
+            String absouletRoute = inputController.getPathStr();//真正的absouleRoute从用户输入框获取//
+            MessageController messageController = MessageController.getInstance();
+            if (!(absouletRoute == null || absouletRoute.isEmpty() || "".equals(absouletRoute))) {
+                absouletRoute = this.filter.initeFilte(absouletRoute);
 
-        String tips = this.filter.filteDirectoryName(absouletRoute);
-        if (!tips.isEmpty()) {
-            //用一个框输出提示
-        } else {
-            int diskNumber;
-            if ((diskNumber = this.directoryOpreator.searchDiskNumberOfStoringCatalogueInformation(absouletRoute, ramManager.getFat())) == -1) {
-                //提示该目录不存在
-            } else {
-                ArrayList<CatalogueItem> catalogueItemList = this.diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
-
-                if (catalogueItemList.isEmpty()) {
-                    //提示该目录是个空目录
+                String tips = this.filter.filteDirectoryName(absouletRoute);
+                if (!tips.isEmpty()) {
+                    //用一个框输出提示
+                    messageController.showTips(tips);
                 } else {
-                    //你用一些漂亮的效果将其显示出来呗
-                }
-            }
-        }
+                    int diskNumber;
+                    if ((diskNumber = this.directoryOpreator.searchDiskNumberOfStoringCatalogueInformation(absouletRoute, ramManager.getFat())) == -1) {
+                        //提示该目录不存在
+                        messageController.showTips("目录不存在");
+                    } else {
+                        ArrayList<CatalogueItem> catalogueItemList = this.diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
 
-        //可能还要记下当前所在目录//
+                        if (catalogueItemList.isEmpty()) {
+                            //提示该目录是个空目录
+                            messageController.showTips("空目录");
+                        } else {
+                            initDirectory();
+                            itemTreeItem.setExpanded(true);
+                            TreeItem<FileTreeItem> subitem = itemTreeItem.getChildren().get(0);
+                            subitem.setExpanded(true);
+                            TreeItem<FileTreeItem> subitem2 = subitem.getChildren().get(0);
+                            subitem2.setExpanded(true);
+                            TreeItem<FileTreeItem> subitem3 = subitem2.getChildren().get(1);
+                            subitem3.setExpanded(true);
+                        }
+                    }
+                }
+
+                //可能还要记下当前所在目录//
+            }
+        });
     }
 
     @FXML
@@ -286,6 +312,7 @@ public class MainController implements Initializable {
                         messageController.showTips("删除目录成功");
                         //重新加载Fat表
                         reLoadFatTable();
+                        initDirectory();
                     }
                 }
             } else {
@@ -371,6 +398,7 @@ public class MainController implements Initializable {
             }
             openedFile.setText(text.toString());
             reLoadFatTable();
+            initDirectory();
         });
     }
 
@@ -483,6 +511,7 @@ public class MainController implements Initializable {
                         //提示成功
                         messageController.showTips("成功新建文件");
                         reLoadFatTable();
+                        initDirectory();
                     }
                 }
             }
@@ -636,6 +665,7 @@ public class MainController implements Initializable {
                         //提示成功
                         messageController.showTips("删除成功");
                         reLoadFatTable();
+                        initDirectory();
                     }
                 }
             }
@@ -754,6 +784,5 @@ public class MainController implements Initializable {
             }
             System.exit(0);
         });
-
     }
 }
