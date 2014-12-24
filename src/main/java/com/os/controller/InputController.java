@@ -88,7 +88,8 @@ public class InputController implements Initializable {
             MainController mainController = MainController.getInstance();
             mainController.changeMain(false);
             mainController.changeInput(false);
-
+            closeSelected();
+            closeReadFile();
         });
         selected.getItems().add("1普通文件");
         selected.getItems().add("2只读文件");
