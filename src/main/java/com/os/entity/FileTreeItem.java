@@ -6,22 +6,12 @@ import javafx.scene.image.Image;
  * Created by Jeremie on 2014/12/7.
  */
 public class FileTreeItem {
-    public Image image;
-    public String name;
-    public boolean attribute;
+    private String name;
+    private boolean attribute;
 
-    public FileTreeItem(Image image, String name,boolean attribute) {
-        this.image = image;
+    public FileTreeItem(String name,boolean attribute) {
         this.name = name;
         this.attribute = attribute;
-    }
-
-    public Image getImage() {
-        return image;
-    }
-
-    public void setImage(Image image) {
-        this.image = image;
     }
 
     public String getName() {
@@ -30,6 +20,14 @@ public class FileTreeItem {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isAttribute() {
+        return attribute;
+    }
+
+    public void setAttribute(boolean attribute) {
+        this.attribute = attribute;
     }
 
     @Override

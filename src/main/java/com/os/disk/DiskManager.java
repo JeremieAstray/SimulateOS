@@ -75,7 +75,6 @@ public class DiskManager {
         FATManager fatManager = new FATManager();
 
         ArrayList<Integer> diskOriginInformation = this.diskCodeInterpreter.turnCatalogueFormatInformationToDiskInformation(catalogueItemList);
-//        System.out.println("目录项字节数：" + diskOriginInformation.size());
         ArrayList<Integer> tempDiskOriginInformation = new ArrayList<>();
         int temp = diskNumber, index = 0;
         int d_length = diskOriginInformation.size();

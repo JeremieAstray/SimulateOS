@@ -52,13 +52,11 @@ public class DiskCodeInterpreter {
     public int turnTheAttributeToCode(int[] tempAttribute) {
         int index, code = 0;
         for (index = tempAttribute.length - 1; index >= 0 && tempAttribute[index] == 0; index--);
-        //System.out.println("index为:"+index);
         if (index == -1) {
             return 0;
         } else {
             for (int i = index; i >= 0; i--) {
                 code = code * 2 + tempAttribute[i];
-                //System.out.println("i = "+i+"code = "+code);
             }
             return code;
         }
@@ -95,10 +93,12 @@ public class DiskCodeInterpreter {
 
     public ArrayList<Character> explainDiskInformationForFileFormat(ArrayList<Integer> diskOriginInformation) {
         ArrayList<Character> fileInformation = new ArrayList<>();
+        
         for (int i = 0; i < diskOriginInformation.size(); i++) {
             //文件结束符读进来
             fileInformation.add(this.explainToChar(diskOriginInformation.get(i)));
         }
+        
         return fileInformation;
     }
 
@@ -120,11 +120,6 @@ public class DiskCodeInterpreter {
                 diskOriginInformation.add(byteInformation[j]);
             }
         }
-//        System.out.println("转码以后的目录项");
-//        for (int i = 0; i < information.size(); i++) {
-//            System.out.print("第" + i + "个字节：" + information.get(i) + " ");
-//        }
-//        System.out.println("");
 
         return diskOriginInformation;
     }

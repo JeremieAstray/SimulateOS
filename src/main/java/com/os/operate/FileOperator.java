@@ -28,18 +28,10 @@ public class FileOperator {
 
         int diskNumber = directoryOpreator.searchDiskNumberOfStoringCatalogueInformation(fatherDirectory, fat);
         if (diskNumber == -1) {
-//            System.out.println("父目录不存在，无法创建新文件");
-//            return false;
             return "父目录不存在，无法创建新文件！";
         }
 
-        //ArrayList<CatalogueItem> catalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
         ArrayList<CatalogueItem> catalogueItemList = directoryOpreator.getCompleteCatalogueItemFormatInformationFromDisk(diskNumber, fat);
-//        if (catalogueItemList.size() == 8) {
-//            System.out.println("该目录已有八个项，无法在此新建文件！");
-//            return false;
-//        }
-
         for (CatalogueItem catalogueItemList1 : catalogueItemList) {
             String tempS = "";
             if (catalogueItemList1.getAttribute()[3] == 1) {
@@ -53,25 +45,18 @@ public class FileOperator {
                 tempS += catalogueItemList1.getType();  //文件的类型格式已经带上点‘.’（ASCII码为46）
             }
 
-//            System.out.println("fileNameType = " + fileNameType + "tempS = " + tempS);
             if (fileNameType.equals(tempS)) {
-//                System.out.println("文件名重复，无法在此新建文件！");
-//                return false;
                 return "文件名重复，无法在此新建文件！";
             }
         }
 
         if (attribute[0] == 1) {
-//            System.out.println("该文件为只读文件，不能建立！");
-//            return false;
             return "该文件为只读文件，不能建立！";
         }
 
         /* 这里的文件类型也是带'.'的 */
         int fileFirstAddress = fatManager.updateFATForMallocANewDisk(fat);
         if (fileFirstAddress == -1) {
-//            System.out.println("磁盘已满，无法新建文件");
-//            return false;
             return "磁盘已满，无法新建文件！";
         }
 
@@ -89,19 +74,14 @@ public class FileOperator {
         catalogueItemList.add(item);
 
         if (!diskManager.saveCatalogueItemFormatInformationToDiskForAddCatalogueItem(diskNumber, catalogueItemList, fat)) {   //写进磁盘
-//            System.out.println("磁盘已满，无法新建文件");
-//            fat[fileFirstAddress] = 0;  //记得把给新文件分配的磁盘也归零
-//            return false;
             return "磁盘已满，无法新建文件！";
         }
 
-        //填写文件打开表，暂定这样填
         OFTLE oftle = new OFTLE(absouletRoute, attribute,
                 fileFirstAddress, 1, 1, new Pointer(fileFirstAddress, 0), new Pointer(fileFirstAddress, 0));
         oftleList.add(oftle);
 
         fatManager.saveFATToDisk(fat);
-//        return true;
         return "";
     }
 
@@ -118,11 +98,8 @@ public class FileOperator {
 
         int diskNumber;
         if ((diskNumber = directoryOpreator.searchDiskNumberOfStoringCatalogueInformation(fatherDirectory, fat)) == -1) {
-//            System.out.println("该文件不存在，无法对其进行删除！");  //父目录不存在
-//            return false;
             return "该文件不存在，无法对其进行删除！";
         } else {
-            //ArrayList<CatalogueItem> catalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
             ArrayList<CatalogueItem> catalogueItemList = directoryOpreator.getCompleteCatalogueItemFormatInformationFromDisk(diskNumber, fat);
             boolean isFileExist = false;
 
@@ -142,14 +119,10 @@ public class FileOperator {
                 }
             }
             if (!isFileExist) {
-//                System.out.println("该文件不存在，无法对其进行删除！");  //目录下该文件不存在
-//                return false;
                 return "该文件不存在，无法对其进行删除！";
             }
 
             if (oftleManager.returnOFTLEIndex(oftleList, absouletRoute) != -1) {
-//                System.out.println("文件已被打开，无法对其进行删除！");
-//                return false;
                 return "文件已被打开，无法对其进行删除！";
             } else {
                 int temp = catalogueItem.getInitialDiskNumber(), t_temp = fat[temp];
@@ -168,7 +141,6 @@ public class FileOperator {
             }
         }
         fatManager.saveFATToDisk(fat);
-//        return true;
         return "";
     }
 
@@ -185,12 +157,9 @@ public class FileOperator {
 
         int diskNumber = directoryOpreator.searchDiskNumberOfStoringCatalogueInformation(fatherDirectory, fat);
         if (diskNumber == -1) {
-//            System.out.println("该文件不存在，无法打开文件");  //是该文件的父目录不存在，所以说该文件不存在（这时传过来的文件名是个绝对路径文件名）
-//            return false;
             return "该文件不存在，无法打开文件！";
         }
 
-        //ArrayList<CatalogueItem> catalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
         ArrayList<CatalogueItem> catalogueItemList = directoryOpreator.getCompleteCatalogueItemFormatInformationFromDisk(diskNumber, fat);
 
         boolean isFileExist = false;
@@ -216,16 +185,10 @@ public class FileOperator {
         }
 
         if (!isFileExist) {
-//            System.out.println("该文件不存在，无法打开文件");  //真正的该文件在本目录下面不存在
-//            return false;
             return "该文件不存在，无法打开文件！";
         }
 
-        System.out.println(catalogueItemList.get(fileNumber).getAttribute());
-
         if (flag == 1 && catalogueItemList.get(fileNumber).getAttribute()[0] == 1) {
-//            System.out.println("打开失败，不可以用写的方式打开只读文件");
-//            return false;
             return "打开失败，不可以用写的方式打开只读文件！";
         }
 
@@ -251,7 +214,6 @@ public class FileOperator {
         }
 
         fatManager.saveFATToDisk(fat);
-//        return true;
         return "";
     }
 
@@ -264,8 +226,6 @@ public class FileOperator {
         if ((oftleNumber = oftleManager.returnOFTLEIndex(oftleList, absouletRoute)) != -1) {
             OFTLE tempOFTLET = oftleList.get(oftleNumber);
             if (tempOFTLET.getFlag() == 1) {
-//                System.out.println("文件已用写方式打开，不能读此文件");
-//                return false;  //交给另一个层面去处理
                 return "文件已用写方式打开，不能读此文件！";
             } else {
                 int temp_d_num = tempOFTLET.getRead().getD_num(), temp_b_num = tempOFTLET.getRead().getB_num();
@@ -275,7 +235,6 @@ public class FileOperator {
                 if (fileInformationPerDisk.get(index) != '#') {  //只允许读一次文件结束符
                     while (readIndex < readLength) {  //读的长度结束了就必需停止
                         if (fileInformationPerDisk.get(index) == '#') {  //读到文件结束符，请结束
-                            //ramSpace.add(fileInformationPerDisk.get(index));
                             temp_b_num = index;
                             readIndex++;
                             break;
@@ -302,8 +261,6 @@ public class FileOperator {
             }
         } else {  //其实只是多了打开文件这一项罢了
             if (!openFile(absouletRoute, 0, fat, oftleList).isEmpty()) {
-//                System.out.println("打开文件失败，无法读取！");
-//                return false;
                 return "打开文件失败，无法读取！";
             } else {
                 OFTLE tempOFTLET = oftleList.get(oftleList.size() - 1);
@@ -316,7 +273,6 @@ public class FileOperator {
                 if (fileInformationPerDisk.get(index) != '#') {  //只允许读一次文件结束符
                     while (readIndex < readLength) {
                         if (fileInformationPerDisk.get(index) == '#') {
-                            //ramSpace.add(fileInformationPerDisk.get(index));
                             temp_b_num = index;
                             readIndex++;
                             break;
@@ -343,7 +299,6 @@ public class FileOperator {
         }
 
         fatManager.saveFATToDisk(fat);
-//        return true;
         return "";
     }
 
@@ -355,13 +310,10 @@ public class FileOperator {
 
         int oftleNumber;
         if ((oftleNumber = oftleManager.returnOFTLEIndex(oftleList, absouletRoute)) != -1) {
-            System.out.println("yashi");
             OFTLE tempOFTLET = oftleList.get(oftleNumber);
             if (tempOFTLET.getFlag() == 0) {
-//                System.out.println("文件已用读方式打开，不能写此文件");
-//                return false;  //交给另一个层面去处理
                 return "文件已用读方式打开，不能写此文件！";
-            } else {  //这里只考虑从文件末尾添加的情况  
+            } else {   //这里只考虑从文件末尾添加的情况  
                 int temp_d_num = tempOFTLET.getWrite().getD_num(), temp_b_num = tempOFTLET.getWrite().getB_num();
                 int bufferIndex = 0, addDiskNumber = 0;
                 ArrayList<Character> fileInformationPerDisk = diskManager.getFileFormatInformationFromDisk(temp_d_num);
@@ -383,8 +335,6 @@ public class FileOperator {
                         } else {
                             int t_temp_d_num;
                             if ((t_temp_d_num = fatManager.updateFATForMallocANewDisk(fat)) == -1) {
-//                                System.out.println("磁盘已满，无法把内容完全写完！");
-
                                 temp_b_num--;
 
                                 tempOFTLET.getWrite().setD_num(temp_d_num);
@@ -393,7 +343,6 @@ public class FileOperator {
                                 diskManager.saveFileFormatInformationToDisk(temp_d_num, fileInformationPerDisk);
                                 /* 写文件操作最后三部曲 */
 
-//                                return true;
                                 return "";
                             } else {  //不然就申请新的空间
                                 fat[temp_d_num] = t_temp_d_num;  //及时更新FAT表
@@ -414,16 +363,12 @@ public class FileOperator {
                 diskManager.saveFileFormatInformationToDisk(temp_d_num, fileInformationPerDisk);
                 /* 写文件操作最后三部曲 */
 
-//                System.out.println("addDiskNumber = " + addDiskNumber);
                 tempOFTLET.setFileLength(tempOFTLET.getFileLength() + addDiskNumber);
-//                System.out.println("OFTLETFileLength = " + tempOFTLET.getFileLength());
                 /* 记得修改增加的长度 */
             }
         } else {
             String temp = openFile(absouletRoute, 1, fat, oftleList);
             if (!temp.isEmpty()) {
-//                System.out.println("打开文件失败，无法写入！");
-//                return false;
                 switch (temp) {
                     case "该文件不存在，无法打开文件！":
                         return "文件不存在，无法写入！";
@@ -436,11 +381,8 @@ public class FileOperator {
                 int temp_d_num = tempOFTLET.getWrite().getD_num(), temp_b_num = tempOFTLET.getWrite().getB_num();
                 int bufferIndex = 0, addDiskNumber = 0;
                 ArrayList<Character> fileInformationPerDisk = diskManager.getFileFormatInformationFromDisk(temp_d_num);
-//                System.out.println("temp_b_num = " + temp_b_num + " fileInformationPerDisk.size = " + fileInformationPerDisk.size());
-
                 while (bufferIndex < writeLength) {
                     while (temp_b_num < fileInformationPerDisk.size() && bufferIndex < writeLength) {
-//                        System.out.println("temp_b_num = " + temp_b_num + " bufferIndex = " + bufferIndex);
                         fileInformationPerDisk.set(temp_b_num, buffer[bufferIndex]);
                         bufferIndex++;
                         temp_b_num++;
@@ -449,7 +391,6 @@ public class FileOperator {
                         fileInformationPerDisk.add(buffer[bufferIndex]);
                         bufferIndex++;
                         temp_b_num++;
-//                        System.out.println("temp_b_num = " + temp_b_num);
                     }
                     if (temp_b_num == DiskManager.MAX_DISK_SIZE) {
                         if (fat[temp_d_num] != FATManager.END_FLAG) {  //如果写指针在文件中间，就顺理成章往后读
@@ -457,8 +398,6 @@ public class FileOperator {
                         } else {
                             int t_temp_d_num;
                             if ((t_temp_d_num = fatManager.updateFATForMallocANewDisk(fat)) == -1) {
-//                                System.out.println("磁盘已满，无法把内容完全写完！");
-
                                 temp_b_num--;
 
                                 tempOFTLET.getWrite().setD_num(temp_d_num);
@@ -467,7 +406,6 @@ public class FileOperator {
                                 diskManager.saveFileFormatInformationToDisk(temp_d_num, fileInformationPerDisk);
                                 /* 写文件操作最后三部曲 */
 
-//                                return true;
                                 return "";
                             } else {  //不然就申请新的空间
                                 fat[temp_d_num] = t_temp_d_num;  //及时更新FAT表
@@ -488,15 +426,12 @@ public class FileOperator {
                 diskManager.saveFileFormatInformationToDisk(temp_d_num, fileInformationPerDisk);
                 /* 写文件操作最后三部曲 */
 
-//                System.out.println("addDiskNumber = " + addDiskNumber);
                 tempOFTLET.setFileLength(tempOFTLET.getFileLength() + addDiskNumber);
-//                System.out.println("OFTLETFileLength = " + tempOFTLET.getFileLength());
                 /* 记得修改增加的长度 */
             }
         }
 
         fatManager.saveFATToDisk(fat);
-//        return true;
         return "";
     }
 
@@ -507,8 +442,6 @@ public class FileOperator {
 
         int oftleNumber;
         if ((oftleNumber = oftleManager.returnOFTLEIndex(oftleList, absouletRoute)) == -1) {
-//            System.out.println("该文件没被打开，不用关闭！");
-//            return false;
             return "该文件没被打开，不用关闭！";
         } else {
             OFTLE tempOFTLET = oftleList.get(oftleNumber);
@@ -517,7 +450,6 @@ public class FileOperator {
                 int diskNumber = directoryOpreator.searchDiskNumberOfStoringCatalogueInformation(absouletRoute.substring(0, absouletRoute.lastIndexOf('/')), fat);
                 /* 文件的目录登记项在父目录，所以万分小心 */
 
-                //ArrayList<CatalogueItem> catalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
                 ArrayList<CatalogueItem> catalogueItemList = directoryOpreator.getCompleteCatalogueItemFormatInformationFromDisk(diskNumber, fat);
 
                 for (CatalogueItem catalogueItemList1 : catalogueItemList) {
@@ -529,7 +461,6 @@ public class FileOperator {
                     }
                     t_fileCompleteName += catalogueItemList1.getType();
                     if (t_fileCompleteName.equals(tempOFTLET.getAbsoultRoute().substring(absouletRoute.lastIndexOf('/') + 1))) {
-//                    System.out.println("OFTLETFileLength = " + tempOFTLET.getFileLength());
                         catalogueItemList1.setLength(tempOFTLET.getFileLength());
                         /* 一般只会变动长度 */
 
@@ -552,7 +483,7 @@ public class FileOperator {
                 oftleManager.deleteOFTLE(oftleList, tempOFTLET);  //如果是以读方式打开就不用修改任何东西
             }
         }
-//        return true;
+
         return "";
     }
 
@@ -571,7 +502,6 @@ public class FileOperator {
             System.out.println("该文件不存在！");  //父目录不存在
             return false;
         } else {
-            //ArrayList<CatalogueItem> catalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
             ArrayList<CatalogueItem> catalogueItemList = directoryOpreator.getCompleteCatalogueItemFormatInformationFromDisk(diskNumber, fat);
             boolean isFileExist = false;
 
@@ -599,7 +529,6 @@ public class FileOperator {
                 System.out.println("文件已被打开，无法查看！");
                 return false;
             } else {
-//                OFTLE tempOFTLET = oftleList.get(oftleNumber);
                 int temp = catalogueItem.getInitialDiskNumber();
                 ArrayList<Character> fileInformationPerDisk;
 
@@ -631,11 +560,8 @@ public class FileOperator {
 
         int diskNumber;
         if ((diskNumber = directoryOpreator.searchDiskNumberOfStoringCatalogueInformation(fatherDirectory, fat)) == -1) {
-//            System.out.println("该文件不存在，无法修改其属性！");  //父目录不存在
-//            return false;
             return "该文件不存在，无法修改其属性！";
         } else {
-            //ArrayList<CatalogueItem> catalogueItemList = diskManager.getCatalogueItemFormatInformationFromDisk(diskNumber);
             ArrayList<CatalogueItem> catalogueItemList = directoryOpreator.getCompleteCatalogueItemFormatInformationFromDisk(diskNumber, fat);
             boolean isFileExist = false;
 
@@ -655,14 +581,10 @@ public class FileOperator {
                 }
             }
             if (!isFileExist) {
-//                System.out.println("该文件不存在，无法修改其属性！");  //目录下该文件不存在
-//                return false;
                 return "该文件不存在，无法修改其属性！";
             }
 
             if (oftleManager.returnOFTLEIndex(oftleList, absouletRoute) != -1) {
-//                System.out.println("文件已被打开，无法修改其属性！");
-//                return false;
                 return "文件已被打开，无法修改其属性！";
             } else {
                 if (mode == 0) {
@@ -676,7 +598,7 @@ public class FileOperator {
                 }
             }
         }
-//        return true;
+
         return "";
     }
 }

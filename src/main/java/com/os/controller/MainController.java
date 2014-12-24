@@ -91,7 +91,11 @@ public class MainController implements Initializable {
     private String something;
     private int[] attribute = {0, 0, 1, 0, 0, 0, 0, 0};
     private int[] t_attribute = {0, 0, 0, 1, 0, 0, 0, 0};
-    private TreeItem<FileTreeItem> itemTreeItem = new TreeItem<>(new FileTreeItem(null, "我的电脑", true));
+    private Image myComputer = new Image("file:D:\\wuyu3\\simulateOS\\SimulateOS\\src\\main\\resources\\icon\\mycomputer.png");
+    private Image disk = new Image("file:D:\\wuyu3\\simulateOS\\SimulateOS\\src\\main\\resources\\icon\\disk.png");
+    private Image folder = new Image("file:D:\\wuyu3\\simulateOS\\SimulateOS\\src\\main\\resources\\icon\\folder.png");
+    private Image txt = new Image("file:D:\\wuyu3\\simulateOS\\SimulateOS\\src\\main\\resources\\icon\\txt.png");
+    private TreeItem<FileTreeItem> itemTreeItem = new TreeItem<>(new FileTreeItem("我的电脑", true), new ImageView(myComputer));
 
     private ObservableList<MemoryItem> memoryItemObservableList;
     private ArrayList<MemoryItem> memoryItems = new ArrayList<>();
@@ -154,7 +158,11 @@ public class MainController implements Initializable {
             loadMemoryTable();
             StringBuffer text = new StringBuffer();
             for (OFTLE oftle : ramManager.getOftleList()) {
-                text.append(oftle.getAbsoultRoute() + "\n");
+                if (oftle.getFlag() == 0) {
+                    text.append(oftle.getAbsoultRoute() + "     读方式打开" + "\n");
+                } else {
+                    text.append(oftle.getAbsoultRoute() + "     写方式打开" + "\n");
+                }
             }
             openedFile.setText(text.toString());
             reLoadFatTable();
@@ -244,7 +252,12 @@ public class MainController implements Initializable {
                         tempS += catalogueItem.getName().charAt(k);
                     }
                 }
-                TreeItem<FileTreeItem> tempItemTreeItem = new TreeItem<>(new FileTreeItem(null, tempS, true));
+                TreeItem<FileTreeItem> tempItemTreeItem;
+                if (diskNumber == DiskManager.ORIGINAL_DISK_NUMBER) {
+                    tempItemTreeItem = new TreeItem<>(new FileTreeItem(tempS, true), new ImageView(disk));
+                } else {
+                    tempItemTreeItem = new TreeItem<>(new FileTreeItem(tempS, true), new ImageView(folder));
+                }
                 getCompleteDirectoryInfo(tempItemTreeItem, catalogueItem.getInitialDiskNumber());
                 fatherItemTreeItem.getChildren().add(tempItemTreeItem);
             } else {
@@ -254,7 +267,7 @@ public class MainController implements Initializable {
                     }
                 }
                 tempS += catalogueItem.getType();
-                fatherItemTreeItem.getChildren().add(new TreeItem<>(new FileTreeItem(null, tempS, false)));
+                fatherItemTreeItem.getChildren().add(new TreeItem<>(new FileTreeItem(tempS, false), new ImageView(txt)));
             }
         }
     }
@@ -342,6 +355,7 @@ public class MainController implements Initializable {
                             //最后一层莫要展开
                             extendsItemTree(routeIndexList);
                         } else {
+                            messageController.showTips("成功显示目录");
                             initDirectory();
                             //最后一层也要展开
                             extendsItemTree(routeIndexList);
@@ -470,7 +484,11 @@ public class MainController implements Initializable {
             loadMemoryTable();
             StringBuffer text = new StringBuffer();
             for (OFTLE oftle : ramManager.getOftleList()) {
-                text.append(oftle.getAbsoultRoute() + "\n");
+                if (oftle.getFlag() == 0) {
+                    text.append(oftle.getAbsoultRoute() + "     读方式打开" + "\n");
+                } else {
+                    text.append(oftle.getAbsoultRoute() + "     写方式打开" + "\n");
+                }
             }
             openedFile.setText(text.toString());
             reLoadFatTable();
@@ -556,7 +574,11 @@ public class MainController implements Initializable {
             }
             StringBuffer text = new StringBuffer();
             for (OFTLE oftle : ramManager.getOftleList()) {
-                text.append(oftle.getAbsoultRoute() + "\n");
+                if (oftle.getFlag() == 0) {
+                    text.append(oftle.getAbsoultRoute() + "     读方式打开" + "\n");
+                } else {
+                    text.append(oftle.getAbsoultRoute() + "     写方式打开" + "\n");
+                }
             }
             openedFile.setText(text.toString());
             inputController.closeReadFile();
@@ -593,7 +615,11 @@ public class MainController implements Initializable {
             }
             StringBuffer text = new StringBuffer();
             for (OFTLE oftle : ramManager.getOftleList()) {
-                text.append(oftle.getAbsoultRoute() + "\n");
+                if (oftle.getFlag() == 0) {
+                    text.append(oftle.getAbsoultRoute() + "     读方式打开" + "\n");
+                } else {
+                    text.append(oftle.getAbsoultRoute() + "     写方式打开" + "\n");
+                }
             }
             openedFile.setText(text.toString());
         });
@@ -627,7 +653,11 @@ public class MainController implements Initializable {
             }
             StringBuffer text = new StringBuffer();
             for (OFTLE oftle : ramManager.getOftleList()) {
-                text.append(oftle.getAbsoultRoute() + "\n");
+                if (oftle.getFlag() == 0) {
+                    text.append(oftle.getAbsoultRoute() + "     读方式打开" + "\n");
+                } else {
+                    text.append(oftle.getAbsoultRoute() + "     写方式打开" + "\n");
+                }
             }
             openedFile.setText(text.toString());
         });
@@ -687,10 +717,9 @@ public class MainController implements Initializable {
                             //提示文件已被打开，无法查看
                             messageController.showTips("文件已被打开，无法查看!");
                         } else {
-//                OFTLE tempOFTLET = oftleList.get(oftleNumber);
                             int temp = catalogueItem.getInitialDiskNumber();
                             ArrayList<Character> fileInformationPerDisk;
-                            String f_information = absouletRoute + "\n";
+                            String f_information = absouletRoute + "   文件下的内容如下：" + "\n";
 
                             do {
                                 fileInformationPerDisk = diskManager.getFileFormatInformationFromDisk(temp);
@@ -779,7 +808,11 @@ public class MainController implements Initializable {
             }
             StringBuffer text = new StringBuffer();
             for (OFTLE oftle : ramManager.getOftleList()) {
-                text.append(oftle.getAbsoultRoute() + "\n");
+                if (oftle.getFlag() == 0) {
+                    text.append(oftle.getAbsoultRoute() + "     读方式打开" + "\n");
+                } else {
+                    text.append(oftle.getAbsoultRoute() + "     写方式打开" + "\n");
+                }
             }
             openedFile.setText(text.toString());
         });
